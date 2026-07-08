@@ -1,0 +1,87 @@
+<app-navbar role="driver"></app-navbar>
+<div class="charging-page">
+  <div class="charging-topbar">
+    <div class="charging-step">Step 4 of 5 — Charging</div>
+  </div>
+
+  <div class="charging-body">
+    <div class="station-label"><i class="bi bi-lightning-charge-fill"></i> Mission Bay Supercharger · Port P-04A</div>
+
+    <!-- Charging animation -->
+    <div class="charge-ring-wrap">
+      <svg class="charge-ring" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="88" fill="none" stroke="#e5e7eb" stroke-width="12"/>
+        <circle cx="100" cy="100" r="88" fill="none" stroke="#22c55e" stroke-width="12"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="circumference"
+          [attr.stroke-dashoffset]="dashOffset"
+          transform="rotate(-90 100 100)"
+          style="transition:stroke-dashoffset 1s ease"/>
+      </svg>
+      <div class="ring-inner">
+        <div class="ring-pct">{{currentPct}}%</div>
+        <div class="ring-label">charged</div>
+        <div class="ring-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="charge-stats">
+      <div class="cs-item">
+        <div class="cs-val">{{elapsedTime}}</div>
+        <div class="cs-lbl">Time elapsed</div>
+      </div>
+      <div class="cs-divider"></div>
+      <div class="cs-item">
+        <div class="cs-val">{{energyKwh}} kWh</div>
+        <div class="cs-lbl">Energy added</div>
+      </div>
+      <div class="cs-divider"></div>
+      <div class="cs-item">
+        <div class="cs-val text-green">${{cost}}</div>
+        <div class="cs-lbl">Current cost</div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="charge-bar-wrap">
+      <div class="charge-bar-track">
+        <div class="charge-bar-fill" [style.width]="currentPct + '%'"></div>
+      </div>
+      <div class="charge-bar-labels">
+        <span>0%</span>
+        <span class="target-label">Target: {{targetPct}}%</span>
+        <span>100%</span>
+      </div>
+    </div>
+
+    <!-- ETA -->
+    <div class="charge-eta" *ngIf="currentPct < targetPct">
+      <i class="bi bi-clock"></i> Est. {{etaMin}} min remaining
+    </div>
+
+    <!-- Ending session -->
+    <div class="charge-done" *ngIf="ending">
+      <i class="bi bi-arrow-repeat spin"></i>
+      <span>Finalizing your session…</span>
+    </div>
+
+    <!-- Done state -->
+    <div class="charge-done" *ngIf="isDone && !ending">
+      <i class="bi bi-check-circle-fill"></i>
+      <span>Charging complete!</span>
+    </div>
+
+    <p class="cam-error" *ngIf="endError"><i class="bi bi-exclamation-triangle-fill"></i> {{endError}}</p>
+
+    <!-- Actions -->
+    <div class="charge-actions">
+      <a routerLink="/receipt" [queryParams]="{ bookingId: bookingId }" class="btn-ew-primary charge-pay-btn" *ngIf="isDone && !ending">
+        <i class="bi bi-credit-card-fill"></i> Proceed to Payment
+      </a>
+      <button class="btn-stop" (click)="stopCharging()" *ngIf="!isDone && !ending">
+        <i class="bi bi-stop-fill"></i> Stop Charging
+      </button>
+    </div>
+  </div>
+</div>

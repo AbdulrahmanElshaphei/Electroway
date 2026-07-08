@@ -1,0 +1,16 @@
+.page-heading{font-size:26px;font-weight:800;margin-bottom:4px}.page-sub{font-size:14px;color:var(--ew-gray-500)}
+.d-flex{display:flex}.align-items-center{align-items:center}.justify-content-between{justify-content:space-between}.mb-4{margin-bottom:24px}.py-4{padding-top:32px;padding-bottom:32px}
+.tab-switch{display:flex;gap:4px;background:var(--ew-gray-100);border-radius:10px;padding:4px}
+.tab-switch button{border:none;background:transparent;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;color:var(--ew-gray-500);cursor:pointer;transition:all .2s}
+.tab-switch button.active{background:#fff;color:var(--ew-gray-900);box-shadow:var(--ew-shadow)}
+.tab-count{background:var(--ew-green);color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:4px}
+.method-pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ew-gray-600)}
+.action-btns{display:flex;gap:6px}
+.btn-approve{width:30px;height:30px;border-radius:7px;border:none;background:#dcfce7;color:#16a34a;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.btn-reject{width:30px;height:30px;border-radius:7px;border:none;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+
+@media (max-width: 768px) {
+  .d-flex.justify-content-between { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+  .tab-switch { width: 100%; }
+  .tab-switch button { flex: 1; }
+}

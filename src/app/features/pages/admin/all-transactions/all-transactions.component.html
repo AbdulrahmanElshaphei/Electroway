@@ -1,0 +1,58 @@
+<app-navbar role="admin"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h1 class="page-heading">All Transactions</h1>
+        <p class="page-sub">Every charging session across the platform.</p>
+      </div>
+      <button class="btn-ew-outline" (click)="exportCSV()">
+        <i class="bi bi-download"></i> Export CSV
+      </button>
+    </div>
+
+    <div class="filter-row mb-3">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by ID, station, user..." [(ngModel)]="search" (ngModelChange)="onSearchChange()">
+      </div>
+      <select class="ew-input" style="width:140px" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+        <option value="">All status</option>
+        <option>Paid</option>
+        <option>Refunded</option>
+      </select>
+      <input class="ew-input" type="date" style="width:160px" [(ngModel)]="dateFrom" (change)="onFilterChange()">
+      <input class="ew-input" type="date" style="width:160px" [(ngModel)]="dateTo" (change)="onFilterChange()">
+    </div>
+
+    <div class="ew-card p-0">
+      <table class="ew-table">
+        <thead>
+          <tr>
+            <th>Transaction ID</th><th>User</th><th>Station</th>
+            <th>Date</th><th>Energy</th><th>Total</th>
+            <th>Platform Fee</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of transactions">
+            <td class="fw-600">{{t.transactionId}}</td>
+            <td>{{t.userName}}</td>
+            <td>{{t.stationName}}</td>
+            <td class="text-muted">{{t.date | date:'medium'}}</td>
+            <td>{{t.energyKwh}} kWh</td>
+            <td class="fw-600">EGP {{t.amount}}</td>
+            <td class="text-green">EGP {{t.platformFee}}</td>
+            <td>
+              <span [ngClass]="t.status==='Paid'?'badge-paid':'badge-refunded'">{{t.status}}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="empty-rows" *ngIf="transactions.length === 0">
+        <i class="bi bi-inbox"></i>
+        <p>No transactions match your filters.</p>
+      </div>
+    </div>
+  </div>
+</div>

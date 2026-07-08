@@ -1,0 +1,59 @@
+<app-navbar role="admin"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <a routerLink="/admin/stations" class="back-btn mb-3"><i class="bi bi-arrow-left"></i> Back to Ports</a>
+    <div class="sr-layout" *ngIf="port">
+      <div class="sr-main">
+        <div class="ew-card mb-3">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h1 class="sr-title">{{port.stationName}} (Port {{port.portCode}})</h1>
+            <span class="badge-pending">{{port.status}}</span>
+          </div>
+          <div class="sr-meta-grid">
+            <div class="sr-meta-item"><i class="bi bi-person-fill"></i><div><div class="sm-lbl">Owner</div><div class="sm-val">{{port.ownerName}}</div></div></div>
+            <div class="sr-meta-item"><i class="bi bi-geo-alt-fill"></i><div><div class="sm-lbl">Address</div><div class="sm-val">{{port.stationAddress}}</div></div></div>
+            <div class="sr-meta-item"><i class="bi bi-plugin"></i><div><div class="sm-lbl">Connector</div><div class="sm-val">{{port.connectorType}}</div></div></div>
+            <div class="sr-meta-item"><i class="bi bi-tag-fill"></i><div><div class="sm-lbl">Price</div><div class="sm-val">EGP {{port.pricePerKwh}}/kWh</div></div></div>
+            <div class="sr-meta-item"><i class="bi bi-calendar"></i><div><div class="sm-lbl">Submitted</div><div class="sm-val">{{port.createdAt | date:'mediumDate'}}</div></div></div>
+            <div class="sr-meta-item"><i class="bi bi-speedometer2"></i><div><div class="sm-lbl">Max Speed</div><div class="sm-val">{{port.power}} kW</div></div></div>
+          </div>
+        </div>
+        <div class="ew-card mb-3">
+          <h2 class="card-title mb-3">Port Images</h2>
+          <div class="img-grid" *ngIf="port.imageUrls && port.imageUrls.length">
+            <a class="img-placeholder" *ngFor="let img of port.imageUrls" [href]="getImageUrl(img)" target="_blank" style="padding:0; overflow:hidden">
+              <img [src]="getImageUrl(img)" style="width:100%; height:100%; object-fit:cover" alt="Port Photo">
+            </a>
+          </div>
+          <p class="text-muted" *ngIf="!port.imageUrls || !port.imageUrls.length">No images uploaded.</p>
+        </div>
+      </div>
+      <!-- Action panel -->
+      <div class="sr-panel">
+        <div class="ew-card">
+          <h2 class="card-title mb-3">Review Decision</h2>
+          <div class="decision-btns" *ngIf="port.status==='Pending'">
+            <button class="btn-approve-big" (click)="approve()"><i class="bi bi-check-circle-fill"></i> Approve Port</button>
+            <button class="btn-reject-big"  (click)="showReject=true" *ngIf="!showReject"><i class="bi bi-x-circle-fill"></i> Reject Port</button>
+          </div>
+          <p *ngIf="port.status!=='Pending'" class="text-muted">This port is already {{port.status}}.</p>
+          <div class="reject-form" *ngIf="showReject">
+            <label class="ew-label mt-3">Reason for rejection <span class="text-red">*</span></label>
+            <textarea class="ew-input" rows="4" placeholder="Explain why this port is being rejected..." [(ngModel)]="rejectReason" style="resize:vertical"></textarea>
+            <div class="notif-preview" *ngIf="rejectReason">
+              <div class="np-label">📬 Notification preview</div>
+              <div class="np-body">Your port "<strong>{{port.portCode}}</strong>" has been rejected.<br>Reason: <em>{{rejectReason}}</em><br>You can edit and resubmit at any time.</div>
+            </div>
+            <button class="btn-reject-big mt-3" (click)="confirmReject()" [disabled]="!rejectReason">Send Rejection & Notify Owner</button>
+            <button class="btn-ew-outline btn-full mt-2" (click)="showReject=false">Cancel</button>
+          </div>
+        </div>
+        <div class="ew-card mt-3">
+          <h2 class="card-title mb-2">Send Custom Notification</h2>
+          <textarea class="ew-input mb-2" rows="3" placeholder="Write a message to the owner..." [(ngModel)]="customMsg" style="resize:vertical"></textarea>
+          <button class="btn-ew-primary btn-full" (click)="sendMsg()" [disabled]="!customMsg"><i class="bi bi-send"></i> Send Message</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,189 @@
+<app-navbar role="owner"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+
+    <!-- Header -->
+    <div class="page-header mb-4">
+      <div>
+        <h1 class="page-heading">Bookings</h1>
+        <p class="page-sub">All reservations made on your ports — upcoming, active and past.</p>
+      </div>
+      <button class="btn-ew-outline" (click)="exportCSV()">
+        <i class="bi bi-download"></i> Export Excel
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row mb-4">
+      <div class="stat-card">
+        <div class="stat-label">TODAY'S BOOKINGS</div>
+        <div class="stat-value">{{todayCount()}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">UPCOMING</div>
+        <div class="stat-value">{{upcomingCount()}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">CANCELLED THIS MONTH</div>
+        <div class="stat-value">{{cancelledCount()}}</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-row mb-3">
+      <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="tab===t.key" *ngFor="let t of tabs" (click)="tab=t.key">
+          {{t.label}}
+          <span class="tab-count" *ngIf="t.key !== 'all'">{{countByTab(t.key)}}</span>
+        </button>
+      </div>
+      <div class="filter-right">
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Search driver, port..." [(ngModel)]="search">
+        </div>
+        <select class="ew-input" style="width:140px" [(ngModel)]="portFilter">
+          <option value="">All ports</option>
+          <option *ngFor="let p of ports" [value]="p">{{p}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div *ngIf="loading" style="padding:40px 0;text-align:center">
+      <i class="bi bi-arrow-repeat spin" style="font-size:24px"></i>
+    </div>
+
+    <div *ngIf="!loading && loadError" class="map-load-error mb-3">
+      <i class="bi bi-exclamation-triangle"></i> {{loadError}}
+    </div>
+
+    <!-- Table -->
+    <div class="ew-card p-0" *ngIf="!loading && !loadError">
+      <table class="ew-table">
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>Driver</th>
+            <th>Port</th>
+            <th>Scheduled</th>
+            <th>Est. Duration</th>
+            <th>Est. Cost</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of filtered()">
+            <td class="fw-600 mono">{{b.id}}</td>
+            <td>
+              <div class="driver-cell">
+                <div class="driver-av">{{b.driverInitials}}</div>
+                <div>
+                  <div class="driver-name">{{b.driverName}}</div>
+                  <div class="driver-email">{{b.driverEmail}}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="port-badge">{{b.port}}</span>
+            </td>
+            <td>
+              <div class="date-cell">
+                <div class="date-main">{{b.date}}</div>
+                <div class="date-time">{{b.time}}</div>
+              </div>
+            </td>
+            <td class="text-muted">{{b.duration}}</td>
+            <td class="fw-600">{{b.estCost}}</td>
+            <td>
+              <span [ngClass]="{
+                'badge-confirmed': b.status==='Confirmed',
+                'badge-active':    b.status==='Active',
+                'badge-completed': b.status==='Completed',
+                'badge-cancelled': b.status==='Cancelled'
+              }">{{b.status}}</span>
+            </td>
+            <td>
+              <div class="action-btns">
+                <button class="btn-action-view" (click)="viewDetails(b)" title="View details">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn-action-cancel" *ngIf="b.status === 'Confirmed'" (click)="cancelBooking(b)" title="Cancel booking" style="color: #ef4444; background: #fee2e2; border: none; padding: 6px; border-radius: 6px; cursor: pointer; transition: 0.2s;">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filtered().length === 0">
+            <td colspan="8" class="empty-row">
+              <i class="bi bi-calendar-x"></i>
+              <p>No bookings found</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── BOOKING DETAIL MODAL ── -->
+<div class="modal-overlay" *ngIf="selectedBooking" (click)="selectedBooking=null">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Booking Details</h2>
+      <button class="modal-close" (click)="selectedBooking=null"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Status banner -->
+      <div class="detail-status-banner" [ngClass]="{
+             'banner-confirmed': selectedBooking.status==='Confirmed',
+             'banner-active':    selectedBooking.status==='Active',
+             'banner-completed': selectedBooking.status==='Completed',
+             'banner-cancelled': selectedBooking.status==='Cancelled'
+           }">
+        <i class="bi" [ngClass]="{
+          'bi-calendar-check-fill': selectedBooking.status==='Confirmed',
+          'bi-lightning-charge-fill': selectedBooking.status==='Active',
+          'bi-check-circle-fill': selectedBooking.status==='Completed',
+          'bi-x-circle-fill': selectedBooking.status==='Cancelled'
+        }"></i>
+        {{selectedBooking.status}}
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="di-label">Booking ID</div>
+          <div class="di-value mono">{{selectedBooking.id}}</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Driver</div>
+          <div class="di-value">{{selectedBooking.driverName}}</div>
+          <div class="di-sub">{{selectedBooking.driverEmail}}</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Port</div>
+          <div class="di-value">{{selectedBooking.port}}</div>
+          <div class="di-sub">{{selectedBooking.speed}} kW · ${{selectedBooking.priceKwh}}/kWh</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Scheduled</div>
+          <div class="di-value">{{selectedBooking.date}}</div>
+          <div class="di-sub">{{selectedBooking.time}}</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Est. Duration</div>
+          <div class="di-value">{{selectedBooking.duration}}</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Est. Cost</div>
+          <div class="di-value text-green">{{selectedBooking.estCost}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+      <button class="btn-ew-outline" style="color: #ef4444; border-color: #ef4444;" *ngIf="selectedBooking.status === 'Confirmed'" (click)="cancelBooking(selectedBooking)">Cancel Booking</button>
+      <button class="btn-ew-outline" (click)="selectedBooking=null">Close</button>
+    </div>
+  </div>
+</div>

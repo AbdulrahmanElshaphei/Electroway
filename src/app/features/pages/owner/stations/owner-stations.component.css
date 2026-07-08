@@ -1,0 +1,34 @@
+.page-heading{font-size:26px;font-weight:800;margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--ew-gray-500);max-width:560px}
+.dash-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.py-4{padding-top:32px;padding-bottom:32px}
+.mb-3{margin-bottom:16px}.mb-4{margin-bottom:24px}
+
+.stations-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.station-card{background:#fff;border:1px solid var(--ew-gray-200);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.station-card-top{display:flex;align-items:flex-start;gap:12px}
+.station-icon{width:40px;height:40px;min-width:40px;background:var(--ew-green-light);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ew-green-dark);font-size:18px}
+.station-name{font-size:15px;font-weight:700}
+.station-addr{font-size:12px;color:var(--ew-gray-500);margin-top:2px}
+.station-meta{font-size:13px;color:var(--ew-gray-600);display:flex;gap:14px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px}
+.modal-box{background:#fff;border-radius:20px;width:100%;max-width:480px;max-height:calc(100vh - 40px);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .2s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--ew-gray-100);flex-shrink:0}
+.modal-title{font-size:17px;font-weight:800;margin:0}
+.modal-close{background:none;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ew-gray-500);transition:background .2s}
+.modal-close:hover{background:var(--ew-gray-100)}
+.modal-body{padding:20px 22px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--ew-gray-100);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin .7s linear infinite; }
+.form-error { color: #dc2626; font-size: 13px; margin: 8px 0 0; }
+.map-load-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 14px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+
+@media (max-width: 768px) {
+  .dash-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .stations-grid { grid-template-columns: 1fr; }
+}

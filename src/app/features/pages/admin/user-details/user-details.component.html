@@ -1,0 +1,50 @@
+<app-navbar role="admin"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <a routerLink="/admin/users" class="back-btn mb-3"><i class="bi bi-arrow-left"></i> Back to Users</a>
+    <div class="ud-layout" *ngIf="user">
+      <!-- Profile card -->
+      <div class="ew-card ud-profile">
+        <div class="ud-avatar">{{getInitials(user.fullName)}}</div>
+        <div class="ud-name">{{user.fullName}}</div>
+        <div class="ud-email">{{user.email}}</div>
+        <span class="role-tag" [ngClass]="user.role==='Driver'?'role-driver':'role-owner'">{{user.role}}</span>
+        <div class="ud-stats">
+          <div class="ud-stat"><div class="ud-sv">{{user.sessionsCount}}</div><div class="ud-sl">Sessions</div></div>
+          <div class="ud-stat"><div class="ud-sv">{{spent}}</div><div class="ud-sl">Total Spent</div></div>
+          <div class="ud-stat"><div class="ud-sv">{{user.joinedAt | date:'mediumDate'}}</div><div class="ud-sl">Joined</div></div>
+        </div>
+        <div class="ud-actions">
+          <button class="btn-ew-outline btn-full" (click)="sendNotif()"><i class="bi bi-bell"></i> Send Notification</button>
+          <button class="btn-warn btn-full" (click)="toggleSuspend()"><i class="bi bi-slash-circle"></i> {{user.status==='Active'?'Suspend':'Unsuspend'}} Account</button>
+          <button class="btn-danger btn-full" (click)="banUser()"><i class="bi bi-ban"></i> Ban User</button>
+        </div>
+      </div>
+      <!-- Activity -->
+      <div class="ud-activity">
+        <div class="ew-card mb-3">
+          <h2 class="card-title mb-3">Recent Sessions</h2>
+          <table class="ew-table">
+            <thead><tr><th>Station</th><th>Date</th><th>Energy</th><th>Total</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let s of sessions_list">
+                <td class="fw-600">{{s.station}}</td><td class="text-muted">{{s.date}}</td>
+                <td>{{s.energy}}</td><td class="fw-600">{{s.total}}</td>
+                <td><span class="badge-paid">Paid</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Notification history -->
+        <div class="ew-card">
+          <h2 class="card-title mb-3">Notification History</h2>
+          <div class="notif-item" *ngFor="let n of notifications">
+            <div class="notif-icon" [ngStyle]="{'background':n.bg}"><i class="bi" [ngClass]="n.icon" [ngStyle]="{'color':n.color}"></i></div>
+            <div class="notif-content"><div class="notif-title">{{n.title}}</div><div class="notif-body">{{n.body}}</div></div>
+            <div class="notif-time">{{n.time}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<app-navbar role="driver"></app-navbar>
+<div class="page-bg">
+  <div class="sd-topbar">
+    <a routerLink="/dashboard" class="back-btn"><i class="bi bi-arrow-left"></i> Back to map</a>
+    <button class="heart-btn" [class.saved]="isFavorite" (click)="toggleFavorite()" [disabled]="favoriteBusy" title="Save to favorites" *ngIf="station">
+      <i class="bi" [ngClass]="isFavorite ? 'bi-heart-fill' : 'bi-heart'"></i>
+      <span>{{isFavorite ? 'Saved' : 'Save'}}</span>
+    </button>
+  </div>
+
+  <div class="page-container" *ngIf="loading" style="padding:60px 0;text-align:center">
+    <i class="bi bi-arrow-repeat spin" style="font-size:28px"></i>
+    <p class="text-muted mt-2">Loading station…</p>
+  </div>
+
+  <div class="page-container" *ngIf="!loading && loadError" style="padding:60px 0;text-align:center">
+    <i class="bi bi-exclamation-triangle text-danger" style="font-size:28px"></i>
+    <p class="text-muted mt-2">{{loadError}}</p>
+  </div>
+
+  <div class="sd-layout page-container" *ngIf="!loading && station">
+    <!-- Gallery -->
+    <div class="sd-left">
+      <div class="gallery-main" *ngIf="!station.imageUrls?.length">
+        <div class="gallery-placeholder"><i class="bi bi-lightning-charge-fill"></i></div>
+        <span [ngClass]="station.availablePortsCount > 0 ? 'badge-available' : 'badge-busy'" class="gallery-badge">
+          {{station.availablePortsCount > 0 ? 'Available' : 'Busy'}}
+        </span>
+      </div>
+      <div class="gallery-main" *ngIf="station.imageUrls?.length">
+        <img [src]="station.imageUrls[0]" alt="{{station.displayName}}" style="width:100%;height:100%;object-fit:cover;border-radius:14px">
+        <span [ngClass]="station.availablePortsCount > 0 ? 'badge-available' : 'badge-busy'" class="gallery-badge">
+          {{station.availablePortsCount > 0 ? 'Available' : 'Busy'}}
+        </span>
+      </div>
+      <div class="gallery-grid" *ngIf="(station.imageUrls?.length ?? 0) > 1">
+        <div class="gallery-thumb" *ngFor="let img of station.imageUrls.slice(1, 5)">
+          <img [src]="img" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+        </div>
+      </div>
+
+      <!-- Ports list -->
+      <div class="specs-section" style="flex-direction:column;gap:10px;align-items:stretch">
+        <div class="spec-card" *ngFor="let p of ports" style="flex-direction:row;justify-content:space-between;align-items:center;text-align:left;padding:14px 16px">
+          <div>
+            <div class="spec-val" style="font-size:15px">{{p.portCode}} A {{p.power}}kW</div>
+            <div class="spec-lbl" style="margin:0">EGP {{p.pricePerKwh}}/kWh</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span [ngClass]="p.status===1?'badge-available':'badge-busy'">{{p.status===1?'Available':'Busy'}}</span>
+            <a routerLink="/booking" [queryParams]="{ stationId: station.stationId, portId: p.portId }" class="btn-ew-primary" style="padding:6px 12px;font-size:13px;border-radius:6px" *ngIf="p.status===1">
+              Book
+            </a>
+          </div>
+        </div>
+        <p class="text-muted" *ngIf="!ports.length" style="padding:8px 0">No ports available at this station right now.</p>
+      </div>
+
+      <div class="sd-notes" *ngIf="station.description">
+        <div class="notes-label">NOTES</div>
+        <p>{{station.description}}</p>
+      </div>
+    </div>
+
+    <!-- Info + booking -->
+    <div class="sd-right">
+      <h1 class="sd-title">{{station.displayName}}</h1>
+      <div class="sd-meta">
+        <span class="sd-rating"><i class="bi bi-star-fill"></i> {{station.averageRating || '—'}} <span class="text-muted">({{station.reviewCount}} reviews)</span></span>
+        <span class="sd-dot">·</span>
+        <span class="text-muted"><i class="bi bi-geo-alt"></i> {{station.address}}</span>
+      </div>
+
+      <!-- Booking widget -->
+      <div class="booking-widget">
+        <div class="bw-row"><div class="bw-label">Charging speed</div></div>
+        <div class="bw-time">{{station.fastestPowerKw || '—'}} kW</div>
+        <div class="bw-sub">from EGP {{station.cheapestPricePerKwh || '—'}}/kWh</div>
+        <div class="bw-divider"></div>
+        <div class="bw-detail-row"><span>Available ports</span><strong>{{station.availablePortsCount}} / {{station.totalPortsCount}}</strong></div>
+        <div class="bw-detail-row" *ngIf="station.distanceKm != null"><span>Distance</span><strong>{{station.distanceKm | number:'1.1-1'}} km</strong></div>
+        <p class="text-muted" *ngIf="station.availablePortsCount === 0" style="text-align:center;margin:8px 0">All ports are busy right now.</p>
+        <a routerLink="/navigate" [queryParams]="forwardParams()" class="btn-ew-outline btn-full bw-nav-btn">
+          <i class="bi bi-navigation-fill"></i> Navigate
+        </a>
+      </div>
+
+      <!-- Reviews preview -->
+      <div class="reviews-preview">
+        <div class="rp-header"><span class="rp-title">Recent reviews</span><span class="rp-rating"><i class="bi bi-star-fill"></i> {{station.averageRating || '—'}}</span></div>
+        <div class="rp-item" *ngFor="let r of reviews.slice(0, 5)">
+          <div class="rp-av">{{initialsOf(r.userName)}}</div>
+          <div class="rp-content">
+            <div class="rp-name">{{r.userName}} <span class="rp-stars">{{starString(r.rate)}}</span></div>
+            <div class="rp-text">{{r.comment}}</div>
+          </div>
+        </div>
+        <p class="text-muted" *ngIf="!reviews.length" style="padding:8px 0">No reviews yet.</p>
+      </div>
+    </div>
+  </div>
+</div>

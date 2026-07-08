@@ -1,0 +1,44 @@
+<app-navbar role="admin"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div><h1 class="page-heading">Withdrawal Requests</h1><p class="page-sub">Pending and processed payout requests from station owners.</p></div>
+      <div class="tab-switch">
+        <button [class.active]="tab==='Pending'"  (click)="setTab('Pending')">Pending <span class="tab-count" *ngIf="pendingCount > 0">{{pendingCount}}</span></button>
+        <button [class.active]="tab==='Approved'" (click)="setTab('Approved')">Approved</button>
+        <button [class.active]="tab==='Rejected'" (click)="setTab('Rejected')">Rejected</button>
+      </div>
+    </div>
+    <div class="ew-card p-0">
+      <table class="ew-table">
+        <thead><tr><th>Reference</th><th>Owner</th><th>Amount</th><th>Method</th><th>Requested</th><th>AI Analysis</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let w of requests">
+            <td class="fw-600">{{w.reference}}</td>
+            <td>{{w.ownerName}}</td>
+            <td class="fw-600 text-green">EGP {{w.amount}}</td>
+            <td><div class="method-pill"><i class="bi" [ngClass]="getMethodIcon(w.method)"></i> {{w.method}}</div></td>
+            <td class="text-muted">{{w.requestedAt | date:'mediumDate'}}</td>
+            <td>
+              <div *ngIf="w.aiRiskScore !== undefined && w.aiRiskScore !== null" class="ai-score" [title]="w.aiRecommendation">
+                <span class="badge" [ngClass]="{'bg-success': w.aiRiskScore < 30, 'bg-warning text-dark': w.aiRiskScore >= 30 && w.aiRiskScore < 70, 'bg-danger': w.aiRiskScore >= 70}">
+                  <i class="bi bi-robot"></i> Score: {{w.aiRiskScore}}
+                </span>
+                <div class="small text-muted mt-1" style="font-size: 0.75rem; max-width: 200px; white-space: normal;">{{w.aiRecommendation}}</div>
+              </div>
+              <span class="text-muted small" *ngIf="w.aiRiskScore === undefined || w.aiRiskScore === null">Pending AI...</span>
+            </td>
+            <td><span [ngClass]="w.status==='Pending'?'badge-pending':w.status==='Approved'?'badge-available':'badge-out'">{{w.status}}</span></td>
+            <td>
+              <div class="action-btns" *ngIf="w.status==='Pending'">
+                <button class="btn-approve" (click)="approve(w)" title="Approve"><i class="bi bi-check-lg"></i></button>
+                <button class="btn-reject"  (click)="reject(w)"  title="Reject"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <span class="text-muted" *ngIf="w.status!=='Pending'">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

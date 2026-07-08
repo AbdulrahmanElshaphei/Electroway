@@ -1,0 +1,278 @@
+<app-navbar role="owner"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+
+    <!-- VERIFICATION LOCKOUT BANNER -->
+    <div class="verify-lock-banner mb-4" *ngIf="isLocked">
+      <div class="verify-lock-icon"><i class="bi bi-shield-exclamation"></i></div>
+      <div class="verify-lock-text">
+        <h3>Your account isn't verified yet</h3>
+        <p>We couldn't confirm your identity from the documents you submitted, so your dashboard is locked. Check the
+          <a routerLink="/owner/notifications">notifications page</a> for details, then fix and resubmit your documents below.</p>
+      </div>
+      <button class="btn-ew-primary" (click)="openFixVerification()"><i class="bi bi-pencil-square"></i> Edit your data</button>
+    </div>
+
+    <div class="dash-header mb-4" [class.is-disabled]="isLocked">
+      <div>
+        <h1 class="page-heading">Owner dashboard</h1>
+        <p class="page-sub">Welcome back — here's how your network is performing.</p>
+      </div>
+      <a class="btn-ew-outline" routerLink="/owner/stations" [class.is-disabled]="isLocked"><i class="bi bi-building"></i> Manage Stations</a>
+      <button class="btn-ew-primary" (click)="openAddPort()" [disabled]="isLocked || !stations.length"><i class="bi bi-plus-lg"></i> Add New Port</button>
+    </div>
+
+    <div *ngIf="loading" style="padding:40px 0;text-align:center">
+      <i class="bi bi-arrow-repeat spin" style="font-size:24px"></i>
+    </div>
+
+    <div *ngIf="!loading && loadError" class="map-load-error mb-3">
+      <i class="bi bi-exclamation-triangle"></i> {{loadError}}
+    </div>
+
+    <div *ngIf="!loading && !stations.length && !isLocked" class="map-load-error mb-3" style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af">
+      <i class="bi bi-info-circle"></i> You don't have any stations yet.
+      <a routerLink="/owner/stations" style="margin-left:6px;font-weight:700">Create your first station →</a>
+    </div>
+
+    <ng-container *ngIf="!loading">
+      <div class="section-header mb-3" [class.is-disabled]="isLocked">
+        <h2 class="section-subtitle">Your ports</h2>
+        <span class="text-muted">{{ports.length}} ports</span>
+      </div>
+
+      <div class="ports-grid" [class.is-disabled]="isLocked">
+        <div class="port-card" *ngFor="let p of ports">
+          <div class="port-card-top">
+            <div class="port-left">
+              <div class="port-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+              <div>
+                <div class="port-name">{{p.portCode}}</div>
+                <div class="port-spec">{{p.power}} kW · EGP {{p.pricePerKwh}}/kWh</div>
+              </div>
+            </div>
+            <span [ngClass]="statusBadgeClass(p.status)">{{statusLabel(p.status)}}</span>
+          </div>
+          <p class="port-pending-note" *ngIf="statusLabel(p.status)==='Pending'"><i class="bi bi-hourglass-split"></i> Awaiting admin approval — hidden from drivers until approved.</p>
+          <div class="port-actions">
+            <button class="btn-ew-outline port-btn" (click)="openEdit(p)" [disabled]="isLocked"><i class="bi bi-pencil"></i> Edit</button>
+            <button class="btn-ew-dark port-btn" (click)="openQR(p)" [disabled]="isLocked"><i class="bi bi-qr-code"></i> View QR</button>
+          </div>
+        </div>
+        <p class="text-muted" *ngIf="!ports.length && stations.length" style="padding:20px 0">No ports yet — add your first one.</p>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<!-- EDIT PORT MODAL -->
+<div class="modal-overlay" *ngIf="editingPort" (click)="closeEdit()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Edit Port — {{editingPort.portCode}}</h2>
+      <button class="modal-close" (click)="closeEdit()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="ew-label">Port ID</label><input class="ew-input" type="text" [(ngModel)]="editForm.portCode"></div>
+      <div class="mb-3"><label class="ew-label">Charging speed (kW)</label><input class="ew-input" type="number" [(ngModel)]="editForm.power"></div>
+      <div class="mb-3"><label class="ew-label">Price per kWh (EGP)</label><input class="ew-input" type="text" [(ngModel)]="editForm.pricePerKwh"></div>
+      <div class="mb-3">
+        <label class="ew-label">Connector type</label>
+        <select class="ew-input" [(ngModel)]="editForm.connectorType">
+          <option *ngFor="let c of connectorOptions" [ngValue]="c.value">{{c.label}}</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="ew-label">Port Status</label>
+        <select class="ew-input" [(ngModel)]="editForm.markOutOfService" [disabled]="editingPort.status === 4">
+          <option [ngValue]="false">Available (Online)</option>
+          <option [ngValue]="true">Out of Service</option>
+        </select>
+        <p class="text-muted mt-1" style="font-size:12px" *ngIf="editingPort.status === 4">Cannot change status while pending admin approval.</p>
+      </div>
+      <p class="form-error" *ngIf="editError">{{editError}}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ew-outline" (click)="closeEdit()">Cancel</button>
+      <button class="btn-ew-primary" (click)="saveEdit()" [disabled]="editSaving">
+        <span *ngIf="!editSaving"><i class="bi bi-check-lg"></i> Save Changes</span>
+        <span *ngIf="editSaving"><i class="bi bi-arrow-repeat spin"></i> Saving…</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW QR MODAL -->
+<div class="modal-overlay" *ngIf="qrPort" (click)="qrPort=null">
+  <div class="modal-box qr-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">QR Code — {{qrPort.portCode}}</h2>
+      <button class="modal-close" (click)="qrPort=null"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="qr-body">
+      <div class="qr-display">
+        <canvas #qrCanvas width="200" height="200"></canvas>
+      </div>
+      <div class="qr-data-label">
+        <code>{{getQRData(qrPort)}}</code>
+      </div>
+      <div class="qr-info">
+        <div class="qr-port-id">{{qrPort.portCode}}</div>
+        <div class="qr-sub">{{qrPort.power}} kW · EGP {{qrPort.pricePerKwh}}/kWh · {{statusLabel(qrPort.status)}}</div>
+      </div>
+      <div class="qr-actions">
+        <button class="btn-ew-outline" (click)="printQR()"><i class="bi bi-printer"></i> Print</button>
+        <button class="btn-ew-primary" (click)="downloadQR()"><i class="bi bi-download"></i> Download PNG</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD NEW PORT MODAL -->
+<div class="modal-overlay" *ngIf="addingPort" (click)="closeAdd()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Add New Port</h2>
+      <button class="modal-close" (click)="closeAdd()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mb-3">
+        <label class="ew-label">Station*</label>
+        <select class="ew-input" [(ngModel)]="newPort.stationId">
+          <option *ngFor="let s of stations" [ngValue]="s.stationId">{{s.displayName}}</option>
+        </select>
+      </div>
+      <div class="mb-3"><label class="ew-label">Port ID*</label><input class="ew-input" type="text" placeholder="e.g. P-07A" [(ngModel)]="newPort.id"></div>
+      <div class="mb-3">
+        <label class="ew-label">Charging speed (kW)*</label>
+        <select class="ew-input" [(ngModel)]="newPort.speed">
+          <option value="50">50 kW — Standard</option>
+          <option value="150">150 kW — Fast</option>
+          <option value="250">250 kW — Ultra Fast</option>
+          <option value="350">350 kW — Hyper Fast</option>
+        </select>
+      </div>
+      <div class="mb-3"><label class="ew-label">Price per kWh (EGP)*</label><input class="ew-input" type="text" placeholder="4.50" [(ngModel)]="newPort.price"></div>
+      <div class="mb-3">
+        <label class="ew-label">Connector type*</label>
+        <select class="ew-input" [(ngModel)]="newPort.connector">
+          <option *ngFor="let c of connectorOptions" [ngValue]="c.value">{{c.label}}</option>
+        </select>
+      </div>
+      <div class="mb-3"><label class="ew-label">Location / Notes</label><input class="ew-input" type="text" placeholder="e.g. Level B2, Bay 7" [(ngModel)]="newPort.notes"></div>
+      <div class="mb-3">
+        <label class="ew-label">Port Images*</label>
+        <div class="img-upload-area" (click)="imgInput.click()" (dragover)="$event.preventDefault()" (drop)="onDrop($event)">
+          <input #imgInput type="file" accept="image/*" multiple style="display:none" (change)="onImagesSelected($event)">
+          <div class="img-upload-placeholder" *ngIf="newPort.images.length===0">
+            <i class="bi bi-cloud-arrow-up"></i>
+            <p>Click or drag images here</p>
+            <span>PNG, JPG up to 5MB each</span>
+          </div>
+          <div class="img-previews" *ngIf="newPort.images.length>0">
+            <div class="img-preview-item" *ngFor="let img of newPort.images; let i=index">
+              <img [src]="img.url" [alt]="img.name">
+              <button class="img-remove" (click)="removeImage(i,$event)"><i class="bi bi-x"></i></button>
+            </div>
+            <div class="img-add-more" (click)="imgInput.click(); $event.stopPropagation()">
+              <i class="bi bi-plus-lg"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="qr-preview-note"><i class="bi bi-info-circle"></i> A unique QR code will be auto-generated for this port after saving. New ports stay Pending until an admin approves them.</div>
+      <p class="form-error" *ngIf="addError">{{addError}}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ew-outline" (click)="closeAdd()">Cancel</button>
+      <button class="btn-ew-primary" (click)="saveAdd()" [disabled]="!newPort.id||!newPort.price||!newPort.stationId||addSaving">
+        <span *ngIf="!addSaving"><i class="bi bi-plus-lg"></i> Add Port</span>
+        <span *ngIf="addSaving"><i class="bi bi-arrow-repeat spin"></i> Adding…</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FIX VERIFICATION MODAL — re-submit KYC docs after a failed OCR check -->
+<div class="modal-overlay" *ngIf="fixingVerification" (click)="!fixOcrRunning && closeFixVerification()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Edit your verification data</h2>
+      <button class="modal-close" (click)="closeFixVerification()" [disabled]="fixOcrRunning"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="modal-body" *ngIf="!fixOcrRunning && !fixOcrResult">
+      <p class="text-muted mb-3" *ngIf="profile?.reviewNotes">
+        <i class="bi bi-exclamation-triangle text-danger"></i>
+        <strong>Why it failed:</strong> {{profile?.reviewNotes}}
+      </p>
+
+      <div class="kyc-grid">
+        <div class="kyc-item">
+          <label class="ew-label">ID card — front</label>
+          <div class="kyc-upload" [class.has-img]="fixFiles.idFrontUrl" (click)="fixIdFrontInput.click()">
+            <input #fixIdFrontInput type="file" accept="image/*" style="display:none" (change)="onFixFileSelected($event,'idFront')">
+            <ng-container *ngIf="!fixFiles.idFrontUrl">
+              <i class="bi bi-credit-card-2-front"></i><span>Upload front side</span>
+            </ng-container>
+            <ng-container *ngIf="fixFiles.idFrontUrl">
+              <img [src]="fixFiles.idFrontUrl" alt="ID front">
+              <button class="kyc-remove" (click)="removeFixImage('idFront',$event)"><i class="bi bi-x"></i></button>
+            </ng-container>
+          </div>
+        </div>
+        <div class="kyc-item">
+          <label class="ew-label">ID card — back</label>
+          <div class="kyc-upload" [class.has-img]="fixFiles.idBackUrl" (click)="fixIdBackInput.click()">
+            <input #fixIdBackInput type="file" accept="image/*" style="display:none" (change)="onFixFileSelected($event,'idBack')">
+            <ng-container *ngIf="!fixFiles.idBackUrl">
+              <i class="bi bi-credit-card-2-back"></i><span>Upload back side</span>
+            </ng-container>
+            <ng-container *ngIf="fixFiles.idBackUrl">
+              <img [src]="fixFiles.idBackUrl" alt="ID back">
+              <button class="kyc-remove" (click)="removeFixImage('idBack',$event)"><i class="bi bi-x"></i></button>
+            </ng-container>
+          </div>
+        </div>
+        <div class="kyc-item kyc-item-wide">
+          <label class="ew-label">Selfie</label>
+          <div class="kyc-upload kyc-selfie" [class.has-img]="fixFiles.selfieUrl" (click)="fixSelfieInput.click()">
+            <input #fixSelfieInput type="file" accept="image/*" capture="user" style="display:none" (change)="onFixFileSelected($event,'selfie')">
+            <ng-container *ngIf="!fixFiles.selfieUrl">
+              <i class="bi bi-person-bounding-box"></i><span>Upload or take a selfie</span>
+            </ng-container>
+            <ng-container *ngIf="fixFiles.selfieUrl">
+              <img [src]="fixFiles.selfieUrl" alt="Selfie">
+              <button class="kyc-remove" (click)="removeFixImage('selfie',$event)"><i class="bi bi-x"></i></button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+      <p class="form-error" *ngIf="fixError">{{fixError}}</p>
+    </div>
+
+    <div class="modal-body kyc-processing" *ngIf="fixOcrRunning">
+      <div class="kyc-spinner"></div>
+      <h3>Re-checking your documents…</h3>
+      <p class="text-muted">Hang tight, this only takes a moment.</p>
+    </div>
+
+    <div class="modal-body kyc-processing" *ngIf="fixOcrResult && !fixOcrRunning">
+      <ng-container *ngIf="fixOcrResult.passed">
+        <div class="kyc-result-icon kyc-pass"><i class="bi bi-check-lg"></i></div>
+        <h3>Verification passed</h3>
+        <p class="text-muted">Match score: {{(fixOcrResult.score * 100).toFixed(0)}}/100. Your dashboard is unlocking…</p>
+      </ng-container>
+      <ng-container *ngIf="!fixOcrResult.passed">
+        <div class="kyc-result-icon kyc-fail"><i class="bi bi-x-lg"></i></div>
+        <h3>Still needs attention</h3>
+        <p class="text-muted">{{fixOcrResult.reason}}</p>
+      </ng-container>
+    </div>
+
+    <div class="modal-footer" *ngIf="!fixOcrRunning && !fixOcrResult?.passed">
+      <button class="btn-ew-outline" (click)="closeFixVerification()">Cancel</button>
+      <button class="btn-ew-primary" (click)="resubmitVerification()" [disabled]="!fixVerificationComplete"><i class="bi bi-shield-check"></i> Resubmit for verification</button>
+    </div>
+  </div>
+</div>

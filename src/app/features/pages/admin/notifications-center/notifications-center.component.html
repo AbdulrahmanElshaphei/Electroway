@@ -1,0 +1,68 @@
+<app-navbar role="admin"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <h1 class="page-heading">Notifications Center</h1>
+    <p class="page-sub">Send targeted or broadcast notifications to users.</p>
+    <div class="nc-layout">
+      <!-- Compose -->
+      <div class="ew-card">
+        <h2 class="card-title mb-3">Compose Notification</h2>
+        <div class="mb-3">
+          <label class="ew-label">Target audience</label>
+          <div class="audience-grid">
+            <div class="aud-chip" [class.active]="audience==='All Users'"     (click)="audience='All Users'">     <i class="bi bi-globe"></i>   All Users</div>
+            <div class="aud-chip" [class.active]="audience==='Drivers Only'" (click)="audience='Drivers Only'"> <i class="bi bi-car-front"></i>Drivers Only</div>
+            <div class="aud-chip" [class.active]="audience==='Owners Only'"  (click)="audience='Owners Only'">  <i class="bi bi-building"></i>Owners Only</div>
+            <div class="aud-chip" [class.active]="audience==='Specific User'"  (click)="audience='Specific User'">  <i class="bi bi-person"></i>  Specific User</div>
+          </div>
+        </div>
+        <div class="mb-3" *ngIf="audience==='Specific User'">
+          <label class="ew-label">User ID</label>
+          <input class="ew-input" type="text" placeholder="Search user..." [(ngModel)]="targetUser">
+        </div>
+        <div class="mb-3">
+          <label class="ew-label">Notification type</label>
+          <select class="ew-input" [(ngModel)]="notifType">
+            <option>System</option>
+            <option>Approval</option>
+            <option>Booking</option>
+            <option>Payment</option>
+            <option>Review</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="ew-label">Title</label>
+          <input class="ew-input" type="text" placeholder="e.g. System maintenance scheduled" [(ngModel)]="title">
+        </div>
+        <div class="mb-3">
+          <label class="ew-label">Message</label>
+          <textarea class="ew-input" rows="4" placeholder="Write your message here..." [(ngModel)]="message" style="resize:vertical"></textarea>
+        </div>
+        <!-- Preview -->
+        <div class="notif-preview mb-3" *ngIf="title || message">
+          <div class="np-label">📬 Preview</div>
+          <div class="preview-notif">
+            <div class="pn-icon" [ngClass]="'pn-'+notifType.toLowerCase()"><i class="bi" [ngClass]="getTypeIcon()"></i></div>
+            <div><div class="pn-title">{{title || 'Notification title'}}</div><div class="pn-body">{{message || 'Your message here...'}}</div></div>
+          </div>
+        </div>
+        <button class="btn-ew-primary btn-full" style="padding:14px" (click)="send()" [disabled]="!title||!message">
+          <i class="bi bi-send-fill"></i> Send Notification
+        </button>
+      </div>
+      <!-- History -->
+      <div class="ew-card">
+        <h2 class="card-title mb-3">Sent History</h2>
+        <div class="sent-item" *ngFor="let n of sentHistory">
+          <div class="si-top">
+            <span class="si-audience">{{n.targetAudience}}</span>
+            <span class="si-time">{{n.sentAt | date:'medium'}}</span>
+          </div>
+          <div class="si-title">{{n.title}}</div>
+          <div class="si-body">{{n.message}}</div>
+          <div class="si-reach"><i class="bi bi-people-fill"></i> Reached {{n.reachedUsers}} users</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

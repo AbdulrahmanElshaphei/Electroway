@@ -1,0 +1,10 @@
+.page-heading{font-size:26px;font-weight:800;margin-bottom:4px}.page-sub{font-size:14px;color:var(--ew-gray-500)}.py-4{padding-top:32px;padding-bottom:32px}
+
+@media (max-width: 768px) {
+  .page-heading { font-size: 20px; }
+  .ew-card { padding: 0; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin .7s linear infinite; }
+.map-load-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 14px; font-size: 13px; display: flex; align-items: center; gap: 8px; }

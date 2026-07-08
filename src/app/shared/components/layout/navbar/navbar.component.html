@@ -1,0 +1,212 @@
+<!-- ══════════════════════════════════════════
+     DRIVER NAVBAR
+══════════════════════════════════════════ -->
+<nav class="ew-navbar" *ngIf="role === 'driver'">
+  <div class="nav-inner">
+    <a class="ew-logo" routerLink="/">
+      <div class="ew-logo-icon"><svg viewBox="0 0 24 24">
+          <path d="M13 2L4.09 12.26a1 1 0 0 0 .91 1.74H11v8l8.91-10.26a1 1 0 0 0-.91-1.74H13V2z" />
+        </svg></div>
+      <span class="ew-logo-text">Electro<span>Way</span></span>
+    </a>
+
+    <!-- Desktop links -->
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Map</a>
+      <a routerLink="/history" routerLinkActive="active">History</a>
+      <a routerLink="/favorites" routerLinkActive="active">Favorites</a>
+    </div>
+
+    <div class="nav-right">
+      <button class="btn-icon position-relative" routerLink="/notifications">
+        <i class="bi bi-bell"></i><span class="notif-dot"></span>
+      </button>
+      <div class="avatar-menu" (click)="toggleMenu()">
+        <div class="avatar-btn">{{user?.initials}}</div>
+        <div class="dropdown-menu-ew" *ngIf="menuOpen">
+          <div class="dm-user">
+            <div class="dm-name">{{user?.name}}</div>
+            <div class="dm-role driver-badge">Driver</div>
+          </div>
+          <hr class="dm-divider">
+          <button class="dm-item" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+        </div>
+      </div>
+      <!-- Hamburger -->
+      <button class="hamburger" (click)="toggleMobile()" [class.open]="mobileOpen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-drawer" [class.open]="mobileOpen">
+    <div class="mobile-user">
+      <div class="mob-av">{{user?.initials}}</div>
+      <div>
+        <div class="mob-name">{{user?.name}}</div>
+        <div class="dm-role driver-badge">Driver</div>
+      </div>
+    </div>
+    <a routerLink="/" routerLinkActive="mob-active" [routerLinkActiveOptions]="{exact:true}"
+      (click)="mobileOpen=false"><i class="bi bi-house-fill"></i> Home</a>
+    <a routerLink="/dashboard" routerLinkActive="mob-active" (click)="mobileOpen=false"><i class="bi bi-map-fill"></i>
+      Map</a>
+    <a routerLink="/history" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-clock-history"></i> History</a>
+    <a routerLink="/favorites" routerLinkActive="mob-active" (click)="mobileOpen=false"><i class="bi bi-heart-fill"></i>
+      Favorites</a>
+    <a routerLink="/notifications" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-bell-fill"></i> Notifications</a>
+    <hr class="mob-divider">
+    <button class="mob-logout" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+  </div>
+  <div class="drawer-backdrop" *ngIf="mobileOpen" (click)="mobileOpen=false"></div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     OWNER NAVBAR
+══════════════════════════════════════════ -->
+<nav class="ew-navbar" *ngIf="role === 'owner'">
+  <div class="nav-inner">
+    <a class="ew-logo" routerLink="/">
+      <div class="ew-logo-icon"><svg viewBox="0 0 24 24">
+          <path d="M13 2L4.09 12.26a1 1 0 0 0 .91 1.74H11v8l8.91-10.26a1 1 0 0 0-.91-1.74H13V2z" />
+        </svg></div>
+      <span class="ew-logo-text">Electro<span>Way</span></span>
+    </a>
+
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+      <a routerLink="/owner" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Overview</a>
+      <a routerLink="/owner/stations" routerLinkActive="active">Stations</a>
+      <a routerLink="/owner/transactions" routerLinkActive="active">Transactions</a>
+      <a routerLink="/owner/reviews" routerLinkActive="active">Reviews</a>
+      <a routerLink="/owner/bookings" routerLinkActive="active">Bookings</a>
+      <a routerLink="/owner/withdrawal" routerLinkActive="active">Withdraw</a>
+    </div>
+
+    <div class="nav-right">
+      <button class="btn-icon position-relative" routerLink="/owner/notifications">
+        <i class="bi bi-bell"></i><span class="notif-dot"></span>
+      </button>
+      <div class="avatar-menu" (click)="toggleMenu()">
+        <div class="avatar-btn">{{user?.initials}}</div>
+        <div class="dropdown-menu-ew" *ngIf="menuOpen">
+          <div class="dm-user">
+            <div class="dm-name">{{user?.name}}</div>
+            <div class="dm-role owner-badge">Owner</div>
+          </div>
+          <hr class="dm-divider">
+          <button class="dm-item" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+        </div>
+      </div>
+      <button class="hamburger" (click)="toggleMobile()" [class.open]="mobileOpen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-drawer" [class.open]="mobileOpen">
+    <div class="mobile-user">
+      <div class="mob-av">{{user?.initials}}</div>
+      <div>
+        <div class="mob-name">{{user?.name}}</div>
+        <div class="dm-role owner-badge">Owner</div>
+      </div>
+    </div>
+    <a routerLink="/" routerLinkActive="mob-active" [routerLinkActiveOptions]="{exact:true}"
+      (click)="mobileOpen=false"><i class="bi bi-house-fill"></i> Home</a>
+    <a routerLink="/owner" routerLinkActive="mob-active" [routerLinkActiveOptions]="{exact:true}"
+      (click)="mobileOpen=false"><i class="bi bi-speedometer2"></i> Overview</a>
+    <a routerLink="/owner/stations" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-building"></i> Stations</a>
+    <a routerLink="/owner/transactions" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-receipt"></i> Transactions</a>
+    <a routerLink="/owner/reviews" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-star-fill"></i> Reviews</a>
+    <a routerLink="/owner/bookings" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-calendar-check-fill"></i> Bookings</a>
+    <a routerLink="/owner/withdrawal" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-wallet2"></i> Withdraw</a>
+    <a routerLink="/owner/notifications" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-bell-fill"></i> Notifications</a>
+    <hr class="mob-divider">
+    <button class="mob-logout" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+  </div>
+  <div class="drawer-backdrop" *ngIf="mobileOpen" (click)="mobileOpen=false"></div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     ADMIN NAVBAR
+══════════════════════════════════════════ -->
+<nav class="ew-navbar" *ngIf="role === 'admin'">
+  <div class="nav-inner">
+    <a class="ew-logo" routerLink="/">
+      <div class="ew-logo-icon"><svg viewBox="0 0 24 24">
+          <path d="M13 2L4.09 12.26a1 1 0 0 0 .91 1.74H11v8l8.91-10.26a1 1 0 0 0-.91-1.74H13V2z" />
+        </svg></div>
+      <span class="ew-logo-text">Electro<span>Way</span></span>
+    </a>
+
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+      <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Dashboard</a>
+      <a routerLink="/admin/users" routerLinkActive="active">Users</a>
+      <a routerLink="/admin/stations" routerLinkActive="active">Stations</a>
+      <a routerLink="/admin/transactions" routerLinkActive="active">Transactions</a>
+      <a routerLink="/admin/withdrawals" routerLinkActive="active">Withdrawals</a>
+      <a routerLink="/admin/notifications" routerLinkActive="active">Notify</a>
+      <a routerLink="/admin/settings" routerLinkActive="active">Settings</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="avatar-menu" (click)="toggleMenu()">
+        <div class="avatar-btn admin-av">{{user?.initials}}</div>
+        <div class="dropdown-menu-ew" *ngIf="menuOpen">
+          <div class="dm-user">
+            <div class="dm-name">{{user?.name}}</div>
+            <div class="dm-role admin-badge">Admin</div>
+          </div>
+          <hr class="dm-divider">
+          <button class="dm-item" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+        </div>
+      </div>
+      <button class="hamburger" (click)="toggleMobile()" [class.open]="mobileOpen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-drawer" [class.open]="mobileOpen">
+    <div class="mobile-user">
+      <div class="mob-av admin-mob-av">{{user?.initials}}</div>
+      <div>
+        <div class="mob-name">{{user?.name}}</div>
+        <div class="dm-role admin-badge">Admin</div>
+      </div>
+    </div>
+    <a routerLink="/" routerLinkActive="mob-active" [routerLinkActiveOptions]="{exact:true}"
+      (click)="mobileOpen=false"><i class="bi bi-house-fill"></i> Home</a>
+    <a routerLink="/admin" routerLinkActive="mob-active" [routerLinkActiveOptions]="{exact:true}"
+      (click)="mobileOpen=false"><i class="bi bi-grid-fill"></i> Dashboard</a>
+    <a routerLink="/admin/users" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-people-fill"></i> Users</a>
+    <a routerLink="/admin/stations" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-lightning-fill"></i> Stations</a>
+    <a routerLink="/admin/transactions" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-receipt"></i> Transactions</a>
+    <a routerLink="/admin/withdrawals" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-wallet2"></i> Withdrawals</a>
+    <a routerLink="/admin/reports" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-bar-chart-fill"></i> Reports</a>
+    <a routerLink="/admin/notifications" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-bell-fill"></i> Notify</a>
+    <a routerLink="/admin/settings" routerLinkActive="mob-active" (click)="mobileOpen=false"><i
+        class="bi bi-gear-fill"></i> Settings</a>
+    <hr class="mob-divider">
+    <button class="mob-logout" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+  </div>
+  <div class="drawer-backdrop" *ngIf="mobileOpen" (click)="mobileOpen=false"></div>
+</nav>

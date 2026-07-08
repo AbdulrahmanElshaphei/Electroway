@@ -1,0 +1,48 @@
+<app-navbar role="driver"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <div class="page-header mb-4">
+      <div>
+        <h1 class="page-heading">Notifications</h1>
+        <p class="page-sub">Updates about your bookings, sessions and payments.</p>
+      </div>
+      <button class="btn-ew-outline" (click)="markAllRead()"><i class="bi bi-check2-all"></i> Mark all as read</button>
+    </div>
+
+    <div class="notif-filter mb-3">
+      <button class="nf-tab" [class.active]="filter==='all'"      (click)="filter='all'">All <span class="nf-count">{{notifications.length}}</span></button>
+      <button class="nf-tab" [class.active]="filter==='unread'"   (click)="filter='unread'">Unread <span class="nf-count green">{{unreadCount()}}</span></button>
+      <button class="nf-tab" [class.active]="filter==='bookings'" (click)="filter='bookings'">Bookings</button>
+      <button class="nf-tab" [class.active]="filter==='payments'" (click)="filter='payments'">Payments</button>
+      <button class="nf-tab" [class.active]="filter==='charging'" (click)="filter='charging'">Charging</button>
+    </div>
+
+    <div *ngIf="loading" style="padding:40px 0;text-align:center">
+      <i class="bi bi-arrow-repeat spin" style="font-size:24px"></i>
+    </div>
+
+    <div *ngIf="!loading && loadError" class="map-load-error">
+      <i class="bi bi-exclamation-triangle"></i> {{loadError}}
+    </div>
+
+    <div class="ew-card p-0" *ngIf="!loading && !loadError">
+      <div class="notif-item" *ngFor="let n of filtered()" [class.unread]="!n.isRead" (click)="markRead(n)">
+        <div class="notif-icon-wrap" [style.background]="n.bg">
+          <i class="bi" [ngClass]="n.icon" [style.color]="n.color"></i>
+        </div>
+        <div class="notif-body-wrap">
+          <div class="notif-title-row">
+            <span class="notif-title">{{n.title}}</span>
+            <span class="unread-dot" *ngIf="!n.isRead"></span>
+          </div>
+          <div class="notif-body">{{n.messageBody}}</div>
+        </div>
+        <div class="notif-time">{{n.timeLabel}}</div>
+      </div>
+      <div class="empty-state" *ngIf="filtered().length === 0">
+        <i class="bi bi-bell-slash"></i>
+        <p>No notifications here</p>
+      </div>
+    </div>
+  </div>
+</div>

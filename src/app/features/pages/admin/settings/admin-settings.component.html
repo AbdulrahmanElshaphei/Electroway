@@ -1,0 +1,62 @@
+<app-navbar role="admin"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <h1 class="page-heading">Admin Settings</h1>
+    <p class="page-sub">Configure platform-wide rules, fees, and automated messages.</p>
+    <div class="settings-layout">
+      <!-- Left -->
+      <div class="settings-col">
+        <div class="ew-card mb-3">
+          <h2 class="card-title mb-3">💰 Platform Fees</h2>
+          <div class="mb-3">
+            <label class="ew-label">Platform commission (%)</label>
+            <input class="ew-input" type="number" [(ngModel)]="settings.commission" min="0" max="30">
+            <small class="text-muted">Currently charging {{settings.commission}}% on each session</small>
+          </div>
+          <div class="mb-3">
+            <label class="ew-label">Minimum withdrawal ($)</label>
+            <input class="ew-input" type="number" [(ngModel)]="settings.minWithdrawal">
+          </div>
+          <div class="mb-3">
+            <label class="ew-label">Maximum withdrawal per day ($)</label>
+            <input class="ew-input" type="number" [(ngModel)]="settings.maxWithdrawal">
+          </div>
+          <button class="btn-ew-primary" (click)="save('fees')">Save Fee Settings</button>
+        </div>
+        <div class="ew-card mb-3">
+          <h2 class="card-title mb-3">🗺️ Platform Rules</h2>
+          <div class="toggle-row" *ngFor="let r of rules">
+            <div><div class="tr-label">{{r.label}}</div><div class="tr-desc">{{r.desc}}</div></div>
+            <div class="toggle-wrap" (click)="r.value=!r.value" [class.on]="r.value">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+          <button class="btn-ew-primary mt-3" (click)="save('rules')">Save Rules</button>
+        </div>
+      </div>
+      <!-- Right -->
+      <div class="settings-col">
+        <div class="ew-card mb-3">
+          <h2 class="card-title mb-3">📬 Automated Notification Templates</h2>
+          <div class="template-item" *ngFor="let t of templates">
+            <div class="ti-label">{{t.label}}</div>
+            <textarea class="ew-input" rows="3" [(ngModel)]="t.message" style="resize:vertical;font-size:13px"></textarea>
+          </div>
+          <button class="btn-ew-primary mt-3" (click)="save('templates')">Save Templates</button>
+        </div>
+        <div class="ew-card">
+          <h2 class="card-title mb-3">🔐 Admin Access</h2>
+          <div class="mb-3">
+            <label class="ew-label">Admin email</label>
+            <input class="ew-input" type="email" [(ngModel)]="settings.adminEmail">
+          </div>
+          <div class="mb-3">
+            <label class="ew-label">New password</label>
+            <input class="ew-input" type="password" placeholder="Leave blank to keep current" [(ngModel)]="settings.newPass">
+          </div>
+          <button class="btn-ew-outline" (click)="save('access')">Update Access</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

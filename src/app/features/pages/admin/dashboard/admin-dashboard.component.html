@@ -1,0 +1,45 @@
+<app-navbar role="admin"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <h1 class="page-heading">Admin Dashboard</h1>
+    <p class="page-sub">Platform-wide overview — users, revenue, stations and activity.</p>
+    <div class="stats-grid mb-4">
+      <div class="stat-card" *ngFor="let s of stats">
+        <div class="sc-top"><div class="sc-icon" [style.background]="s.bg"><i class="bi" [ngClass]="s.icon" [style.color]="s.color"></i></div><span class="stat-badge text-green">{{s.trend}}</span></div>
+        <div class="stat-label">{{s.label}}</div>
+        <div class="stat-value">{{s.value}}</div>
+      </div>
+    </div>
+    <div class="admin-grid">
+      <!-- Recent users -->
+      <div class="ew-card">
+        <div class="card-title-row"><h2 class="card-title">Recent Users</h2><a routerLink="/admin/users" class="see-all">See all →</a></div>
+        <table class="ew-table">
+          <thead><tr><th>Name</th><th>Role</th><th>Joined</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let u of recentUsers">
+              <td><div class="user-cell"><div class="u-av">{{getInitials(u.fullName)}}</div>{{u.fullName}}</div></td>
+              <td><span class="role-tag" [ngClass]="u.role==='Driver'?'role-driver':'role-owner'">{{u.role}}</span></td>
+              <td class="text-muted">{{u.joinedAt | date:'mediumDate'}}</td>
+              <td><span [ngClass]="u.status==='Active'?'badge-available':'badge-out'">{{u.status}}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Pending ports -->
+      <div class="ew-card">
+        <div class="card-title-row"><h2 class="card-title">Pending Port Approvals</h2><a routerLink="/admin/stations" class="see-all">See all →</a></div>
+        <div class="pending-list">
+          <div class="pending-item" *ngFor="let p of pendingPorts">
+            <div class="pi-info"><div class="pi-name">{{p.portCode}}</div><div class="pi-meta">{{p.providerName || '—'}} · {{p.stationName || '—'}} · {{p.power}}kW</div></div>
+            <div class="pi-actions">
+              <button class="btn-approve" (click)="approve(p)"><i class="bi bi-check-lg"></i></button>
+              <button class="btn-reject"  (click)="reject(p)"><i class="bi bi-x-lg"></i></button>
+            </div>
+          </div>
+          <p class="text-muted" *ngIf="pendingPorts.length===0" style="padding:12px 0">No ports awaiting approval.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

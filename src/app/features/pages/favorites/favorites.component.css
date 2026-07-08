@@ -1,0 +1,27 @@
+.page-heading { font-size:26px; font-weight:800; margin-bottom:4px; }
+.page-sub { font-size:14px; color:var(--ew-gray-500); margin-bottom:24px; }
+.fav-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.fav-card { background:#fff; border:1px solid var(--ew-gray-200); border-radius:16px; overflow:hidden; cursor:pointer; transition:box-shadow .2s; }
+.fav-card:hover { box-shadow:var(--ew-shadow-lg); }
+.fav-img { height:170px; position:relative; display:flex; align-items:flex-start; justify-content:space-between; padding:12px; }
+.fav-badge-top { align-self:flex-start; }
+.heart-btn { background:rgba(255,255,255,.9); border:none; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#ef4444; font-size:14px; }
+.fav-info { padding:16px; }
+.fav-name { font-size:15px; font-weight:700; margin-bottom:4px; }
+.fav-addr { font-size:12px; color:var(--ew-gray-500); margin-bottom:8px; }
+.fav-meta { display:flex; justify-content:space-between; font-size:13px; color:var(--ew-gray-600); }
+.fav-price { font-weight:700; color:var(--ew-gray-900); }
+.py-4 { padding-top:32px; padding-bottom:32px; }
+
+@media (max-width: 1024px) {
+  .fav-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 768px) {
+  .fav-grid { grid-template-columns: 1fr; }
+  .fav-img  { height: 140px; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin .7s linear infinite; }
+.map-load-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.heart-btn:disabled { opacity: .6; cursor: not-allowed; }

@@ -1,0 +1,46 @@
+<app-navbar role="owner"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h1 class="page-heading">Transactions</h1>
+        <p class="page-sub">Every charging session and payout, in one place.</p>
+      </div>
+      <button class="btn-ew-outline" (click)="exportCSV()">
+        <i class="bi bi-download"></i> Export CSV
+      </button>
+    </div>
+    <div *ngIf="loading" style="padding:40px 0;text-align:center">
+      <i class="bi bi-arrow-repeat spin" style="font-size:24px"></i>
+    </div>
+
+    <div *ngIf="!loading && loadError" class="map-load-error mb-3">
+      <i class="bi bi-exclamation-triangle"></i> {{loadError}}
+    </div>
+
+    <div class="ew-card p-0" *ngIf="!loading && !loadError">
+      <table class="ew-table">
+        <thead>
+          <tr>
+            <th>Transaction ID</th><th>Driver</th><th>Port ID</th>
+            <th>Date</th><th>Energy</th><th>Total</th>
+            <th>Platform Fee</th><th>Your Profit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of transactions">
+            <td class="fw-600">{{t.id}}</td>
+            <td>{{t.driver}}</td>
+            <td class="fw-600">{{t.port}}</td>
+            <td>{{t.date}}</td>
+            <td>{{t.energy}}</td>
+            <td class="fw-600">{{t.total}}</td>
+            <td class="text-muted">{{t.fee}}</td>
+            <td class="fw-600 text-green">{{t.profit}}</td>
+          </tr>
+          <tr *ngIf="!transactions.length"><td colspan="8" class="text-center text-muted py-4">No transactions yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

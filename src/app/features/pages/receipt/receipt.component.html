@@ -1,0 +1,71 @@
+<div class="receipt-page">
+  <div class="rp-header">
+    <a routerLink="/dashboard" class="back-btn"><i class="bi bi-arrow-left"></i> Home</a>
+    <a class="ew-logo" routerLink="/"><div class="ew-logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L4.09 12.26a1 1 0 0 0 .91 1.74H11v8l8.91-10.26a1 1 0 0 0-.91-1.74H13V2z"/></svg></div><span class="ew-logo-text">Electro<span>Way</span></span></a>
+  </div>
+  <div class="rp-body">
+
+    <div *ngIf="loading" style="padding:60px 0;text-align:center">
+      <i class="bi bi-arrow-repeat spin" style="font-size:28px"></i>
+      <p class="text-muted mt-2">Loading your receipt…</p>
+    </div>
+
+    <div *ngIf="!loading && loadError" style="padding:60px 0;text-align:center">
+      <i class="bi bi-exclamation-triangle text-danger" style="font-size:28px"></i>
+      <p class="text-muted mt-2">{{loadError}}</p>
+      <a routerLink="/dashboard" class="btn-ew-outline" style="margin-top:12px">Back to map</a>
+    </div>
+
+    <ng-container *ngIf="!loading && !loadError && session">
+      
+      <!-- MANDATORY REVIEW BLOCK -->
+      <div *ngIf="!isReviewSubmitted" class="receipt-card text-center p-4">
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">How was your charging session?</h2>
+        <p style="color:#6b7280;font-size:14px;margin-bottom:20px">Please rate your experience to view your receipt.</p>
+        
+        <div style="font-size:32px;color:#fbbf24;margin-bottom:16px;cursor:pointer">
+          <i [class]="reviewRating >= 1 ? 'bi bi-star-fill' : 'bi bi-star'" (click)="setRating(1)"></i>
+          <i [class]="reviewRating >= 2 ? 'bi bi-star-fill' : 'bi bi-star'" (click)="setRating(2)" style="margin-left:8px"></i>
+          <i [class]="reviewRating >= 3 ? 'bi bi-star-fill' : 'bi bi-star'" (click)="setRating(3)" style="margin-left:8px"></i>
+          <i [class]="reviewRating >= 4 ? 'bi bi-star-fill' : 'bi bi-star'" (click)="setRating(4)" style="margin-left:8px"></i>
+          <i [class]="reviewRating >= 5 ? 'bi bi-star-fill' : 'bi bi-star'" (click)="setRating(5)" style="margin-left:8px"></i>
+        </div>
+
+        <textarea [(ngModel)]="reviewComment" class="form-control" rows="3" placeholder="Leave a comment (optional)..." style="margin-bottom:16px;font-size:14px" [disabled]="submittingReview"></textarea>
+        
+        <div *ngIf="reviewError" class="text-danger" style="margin-bottom:12px;font-size:13px">{{reviewError}}</div>
+
+        <button class="btn-ew-primary btn-full" (click)="submitReview()" [disabled]="submittingReview" style="padding:14px;font-size:15px">
+          <span *ngIf="submittingReview"><i class="bi bi-arrow-repeat spin"></i> Submitting...</span>
+          <span *ngIf="!submittingReview">Submit Review</span>
+        </button>
+      </div>
+
+      <!-- RECEIPT DETAILS (HIDDEN UNTIL REVIEWED) -->
+      <div *ngIf="isReviewSubmitted">
+        <span class="charge-tag"><i class="bi bi-battery-charging"></i> Charging Complete</span>
+        <h1 class="rp-receipt-title">Your receipt</h1>
+        <div class="receipt-card">
+        <div class="rc-total-block">
+          <div class="rc-total-lbl">TOTAL AMOUNT</div>
+          <div class="rc-total-val">EGP {{session.total.toFixed(2)}}</div>
+          <div class="rc-station">{{session.stationName}}</div>
+        </div>
+        <div class="rc-rows">
+          <div class="rc-row"><span>Station name</span><strong>{{session.stationName}}</strong></div>
+          <div class="rc-row"><span>Port ID</span><strong>{{session.portId}}</strong></div>
+          <div class="rc-row"><span>Energy used</span><strong>{{session.energyKwh}} kWh</strong></div>
+          <div class="rc-row"><span>Price per kWh</span><strong>EGP {{session.pricePerKwh}}</strong></div>
+          <div class="rc-row"><span>Date &amp; time</span><strong>{{session.dateTime}}</strong></div>
+          <div class="rc-row"><span>Session duration</span><strong>{{session.durationMin}} min</strong></div>
+        </div>
+        <a routerLink="/payment" [queryParams]="{ sessionId: sessionId }" class="btn-ew-primary btn-full" style="padding:14px;font-size:15px">
+          <i class="bi bi-credit-card"></i> Pay by Card
+        </a>
+        <p class="rc-secure">Secure payment · 256-bit encryption</p>
+      </div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

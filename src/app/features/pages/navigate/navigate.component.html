@@ -1,0 +1,56 @@
+<app-navbar role="driver"></app-navbar>
+<div class="nav-page">
+  <div class="nav-header">
+    <a routerLink="/stations/st-001" [queryParams]="{ name: destName, address: destAddress, lat: destLat, lng: destLng }" class="back-btn"><i class="bi bi-arrow-left"></i> Back</a>
+    <div class="nav-destination"><i class="bi bi-geo-alt-fill text-green"></i> Heading to <strong>{{destName}}</strong></div>
+  </div>
+  <div class="nav-layout">
+    <!-- Real map -->
+    <div class="nav-map-area">
+      <div id="nav-gmap" class="nav-gmap"></div>
+      <div class="gps-overlay" *ngIf="loading">
+        <div class="gps-spinner"><i class="bi bi-geo-alt-fill"></i></div>
+        <div class="gps-text">Calculating route…</div>
+      </div>
+    </div>
+
+    <!-- Panel -->
+    <div class="nav-panel">
+      <h2 class="np-title">{{destName}}</h2>
+      <p class="np-addr"><i class="bi bi-geo-alt"></i> {{destAddress}}</p>
+      <div class="np-stats">
+        <div class="np-stat">
+          <i class="bi bi-arrows-expand"></i>
+          <div><div class="np-val">{{distance}}</div><div class="np-lbl">Distance</div></div>
+        </div>
+        <div class="np-stat">
+          <i class="bi bi-clock"></i>
+          <div><div class="np-val">{{duration}}</div><div class="np-lbl">ETA</div></div>
+        </div>
+      </div>
+      <!-- Route status -->
+      <div class="route-status" *ngIf="loading">
+        <div class="route-loading"><i class="bi bi-arrow-repeat spin"></i> Calculating route…</div>
+      </div>
+      <div class="route-active" *ngIf="!loading && steps.length">
+        <div class="route-active-label"><i class="bi bi-record-circle-fill text-green"></i> Route active — follow the green line</div>
+      </div>
+
+      <div class="turn-list" *ngIf="steps.length">
+        <div class="turn-item" *ngFor="let t of steps; let i=index" [class.next-turn]="i===0">
+          <i class="bi bi-arrow-return-right turn-ico"></i>
+          <span>{{t.instructions}}</span>
+          <span class="turn-dist">{{t.distance}}</span>
+        </div>
+      </div>
+      <div class="turn-placeholder" *ngIf="!loading && !steps.length">
+        <i class="bi bi-exclamation-circle"></i>
+        <p>Could not get directions. Check your connection.</p>
+      </div>
+
+      <a routerLink="/scan" [queryParams]="{ bookingId: bookingId, name: destName, address: destAddress }" class="btn-ew-primary btn-full np-arrive-btn">
+        <i class="bi bi-qr-code-scan"></i> I've Arrived — Scan QR
+      </a>
+    </div>
+  </div>
+</div>

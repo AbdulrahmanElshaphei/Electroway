@@ -1,0 +1,66 @@
+<div class="login-wrapper">
+  <!-- Left panel -->
+  <div class="login-left">
+    <a class="ew-logo mb-4" routerLink="/">
+      <div class="ew-logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L4.09 12.26a1 1 0 0 0 .91 1.74H11v8l8.91-10.26a1 1 0 0 0-.91-1.74H13V2z"/></svg></div>
+      <span class="ew-logo-text text-white">Electro<span>Way</span></span>
+    </a>
+    <h2 class="left-title">Welcome back to the network.</h2>
+    <p class="left-sub">Pick up where you left off — track sessions, manage bookings, and find the best port near you.</p>
+
+    <!-- Demo credentials card -->
+    <div class="demo-card">
+      <div class="demo-title">🔑 Demo Account</div>
+      <div class="demo-row" (click)="fillCreds('admin@elctroway.com','Admin@123')">
+        <div class="demo-role admin-role">Admin</div>
+        <div class="demo-info">
+          <div>admin&#64;elctroway.com</div>
+          <div class="demo-pass">Admin&#64;123</div>
+        </div>
+        <i class="bi bi-arrow-right-circle ms-auto"></i>
+      </div>
+      <p class="demo-note">Owner and Driver accounts: <a routerLink="/register">create one here</a> — the database starts empty.</p>
+    </div>
+
+    <div class="left-footer">© Electro Way</div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="login-right">
+    <div class="login-form-wrap">
+      <h1 class="form-title">Sign in</h1>
+      <p class="form-sub">Welcome back — enter your details below.</p>
+
+      <!-- Error alert -->
+      <div class="error-alert" *ngIf="errorMsg">
+        <i class="bi bi-exclamation-circle-fill"></i> {{errorMsg}}
+      </div>
+
+      <div class="mb-3">
+        <label class="ew-label">Email</label>
+        <input class="ew-input" type="email" placeholder="you@example.com" [(ngModel)]="email">
+      </div>
+      <div class="mb-3">
+        <label class="ew-label">Password</label>
+        <div class="pass-wrap">
+          <input class="ew-input" [type]="showPass?'text':'password'" placeholder="••••••••" [(ngModel)]="password">
+          <button class="pass-eye" type="button" (click)="showPass=!showPass">
+            <i class="bi" [ngClass]="showPass?'bi-eye-slash':'bi-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <label class="check-label"><input type="checkbox"> Remember me</label>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button class="btn-ew-primary btn-full" (click)="login()" [disabled]="loading">
+        <span *ngIf="!loading">Login</span>
+        <span *ngIf="loading"><i class="bi bi-arrow-repeat spin"></i> Signing in…</span>
+      </button>
+
+      <p class="signup-link">New here? <a routerLink="/register">Create an account</a></p>
+    </div>
+  </div>
+</div>

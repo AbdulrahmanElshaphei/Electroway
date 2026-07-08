@@ -1,0 +1,167 @@
+<!-- Header -->
+<div class="reg-header">
+  <a class="ew-logo" routerLink="/">
+    <div class="ew-logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L4.09 12.26a1 1 0 0 0 .91 1.74H11v8l8.91-10.26a1 1 0 0 0-.91-1.74H13V2z"/></svg></div>
+    <span class="ew-logo-text">Electro<span>Way</span></span>
+  </a>
+  <a routerLink="/login" class="signin-link">Already have an account? Sign in</a>
+</div>
+
+<div class="reg-body">
+
+  <!-- STEP 1 — choose type -->
+  <div *ngIf="step === 1" class="step-wrap">
+    <p class="step-label">STEP 1 OF {{type === 'owner' ? 3 : 2}}</p>
+    <h1 class="step-title">I am a…</h1>
+    <p class="step-sub">Pick the type of account you want to create.</p>
+    <div class="type-grid">
+      <div class="type-card" [class.selected]="type==='driver'" (click)="type='driver'">
+        <div class="type-icon"><i class="bi bi-car-front-fill"></i></div>
+        <div>
+          <h3>EV Driver</h3>
+          <p>Find chargers, book ports, and pay seamlessly.</p>
+          <ul>
+            <li><i class="bi bi-check2"></i> Live map &amp; filters</li>
+            <li><i class="bi bi-check2"></i> AI charging assistant</li>
+            <li><i class="bi bi-check2"></i> Charging history</li>
+          </ul>
+        </div>
+        <i class="bi bi-arrow-right arrow-ico"></i>
+      </div>
+      <div class="type-card" [class.selected]="type==='owner'" (click)="type='owner'">
+        <div class="type-icon"><i class="bi bi-building"></i></div>
+        <div>
+          <h3>Charging Station Owner</h3>
+          <p>Manage your ports, customers and revenue in one place.</p>
+          <ul>
+            <li><i class="bi bi-check2"></i> Live port status</li>
+            <li><i class="bi bi-check2"></i> Transactions dashboard</li>
+            <li><i class="bi bi-check2"></i> Customer reviews</li>
+          </ul>
+        </div>
+        <i class="bi bi-arrow-right arrow-ico"></i>
+      </div>
+    </div>
+    <button class="btn-ew-primary mt-4" style="padding:12px 32px" (click)="nextStep()" [disabled]="!type">Continue →</button>
+  </div>
+
+  <!-- STEP 2 — fill details -->
+  <div *ngIf="step === 2" class="step-wrap step-form">
+    <p class="step-label">STEP 2 OF {{type === 'owner' ? 3 : 2}}</p>
+    <h1 class="step-title">Create your {{type === 'driver' ? 'Driver' : 'Owner'}} account</h1>
+    <p class="step-sub">Just a few details and you're in.</p>
+
+    <div class="form-card">
+      <div class="mb-3">
+        <label class="ew-label">Full name</label>
+        <input class="ew-input" type="text" placeholder="Alex Carter" [(ngModel)]="fullName">
+      </div>
+      <div class="mb-3">
+        <label class="ew-label">Email</label>
+        <input class="ew-input" type="email" placeholder="you@example.com" [(ngModel)]="email">
+      </div>
+      <div class="mb-3">
+        <label class="ew-label">Phone number</label>
+        <input class="ew-input" type="tel" placeholder="01XXXXXXXXX" maxlength="11" [(ngModel)]="phone">
+      </div>
+      <div class="mb-3">
+        <label class="ew-label">Password</label>
+        <input class="ew-input" type="password" placeholder="••••••••" [(ngModel)]="password">
+      </div>
+      <div class="mb-4">
+        <label class="ew-label">Confirm password</label>
+        <input class="ew-input" type="password" placeholder="••••••••" [(ngModel)]="confirmPassword">
+      </div>
+      <p class="form-error" *ngIf="errorMsg">{{errorMsg}}</p>
+      <button class="btn-ew-primary btn-full" (click)="continueFromDetails()" [disabled]="submitting">
+        <span *ngIf="!submitting">{{type === 'owner' ? 'Continue →' : 'Create account →'}}</span>
+        <span *ngIf="submitting"><i class="bi bi-arrow-repeat spin"></i> Creating account…</span>
+      </button>
+      <button class="back-link" (click)="step=1">← Change account type</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 — owner verification (KYC + OCR) -->
+  <div *ngIf="step === 3" class="step-wrap step-form">
+    <p class="step-label">STEP 3 OF 3</p>
+    <h1 class="step-title">Verify your identity</h1>
+    <p class="step-sub">Required for all station owners. Upload your ID and a selfie — we'll cross-check them automatically.</p>
+
+    <div class="form-card" *ngIf="!ocrRunning && !ocrResult">
+      <div class="kyc-grid">
+        <div class="kyc-item">
+          <label class="ew-label">ID card — front</label>
+          <div class="kyc-upload" [class.has-img]="verification.idFrontUrl" (click)="idFrontInput.click()">
+            <input #idFrontInput type="file" accept="image/*" style="display:none" (change)="onFileSelected($event,'idFront')">
+            <ng-container *ngIf="!verification.idFrontUrl">
+              <i class="bi bi-credit-card-2-front"></i>
+              <span>Upload front side</span>
+            </ng-container>
+            <ng-container *ngIf="verification.idFrontUrl">
+              <img [src]="verification.idFrontUrl" alt="ID front">
+              <button class="kyc-remove" (click)="removeImage('idFront',$event)"><i class="bi bi-x"></i></button>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="kyc-item">
+          <label class="ew-label">ID card — back</label>
+          <div class="kyc-upload" [class.has-img]="verification.idBackUrl" (click)="idBackInput.click()">
+            <input #idBackInput type="file" accept="image/*" style="display:none" (change)="onFileSelected($event,'idBack')">
+            <ng-container *ngIf="!verification.idBackUrl">
+              <i class="bi bi-credit-card-2-back"></i>
+              <span>Upload back side</span>
+            </ng-container>
+            <ng-container *ngIf="verification.idBackUrl">
+              <img [src]="verification.idBackUrl" alt="ID back">
+              <button class="kyc-remove" (click)="removeImage('idBack',$event)"><i class="bi bi-x"></i></button>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="kyc-item kyc-item-wide">
+          <label class="ew-label">Selfie</label>
+          <div class="kyc-upload kyc-selfie" [class.has-img]="verification.selfieUrl" (click)="selfieInput.click()">
+            <input #selfieInput type="file" accept="image/*" capture="user" style="display:none" (change)="onFileSelected($event,'selfie')">
+            <ng-container *ngIf="!verification.selfieUrl">
+              <i class="bi bi-person-bounding-box"></i>
+              <span>Upload or take a selfie</span>
+            </ng-container>
+            <ng-container *ngIf="verification.selfieUrl">
+              <img [src]="verification.selfieUrl" alt="Selfie">
+              <button class="kyc-remove" (click)="removeImage('selfie',$event)"><i class="bi bi-x"></i></button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <p class="form-error" *ngIf="verifyError">{{verifyError}}</p>
+      <button class="btn-ew-primary btn-full mt-3" (click)="submitVerification()" [disabled]="!verificationComplete">
+        <i class="bi bi-shield-check"></i> Submit for verification
+      </button>
+      <button class="back-link" (click)="step=2">← Back</button>
+    </div>
+
+    <!-- OCR running -->
+    <div class="form-card kyc-processing" *ngIf="ocrRunning">
+      <div class="kyc-spinner"></div>
+      <h3>Checking your documents…</h3>
+      <p class="text-muted">Comparing your ID and selfie. This usually takes a few seconds.</p>
+    </div>
+
+    <!-- OCR result (briefly shown before redirect) -->
+    <div class="form-card kyc-processing" *ngIf="ocrResult">
+      <ng-container *ngIf="ocrResult.passed">
+        <div class="kyc-result-icon kyc-pass"><i class="bi bi-check-lg"></i></div>
+        <h3>Verification passed</h3>
+        <p class="text-muted">Match score: {{(ocrResult.score * 100).toFixed(0)}}/100. Signing you in…</p>
+      </ng-container>
+      <ng-container *ngIf="!ocrResult.passed">
+        <div class="kyc-result-icon kyc-fail"><i class="bi bi-x-lg"></i></div>
+        <h3>Verification needs attention</h3>
+        <p class="text-muted">Match score: {{(ocrResult.score * 100).toFixed(0)}}/100. You can still sign in — we'll guide you to fix this from your dashboard.</p>
+      </ng-container>
+    </div>
+  </div>
+
+</div>

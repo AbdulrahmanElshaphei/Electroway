@@ -1,0 +1,88 @@
+<app-navbar role="owner"></app-navbar>
+<div class="page-bg">
+  <div class="wd-container">
+
+    <!-- Step 1: Choose method -->
+    <div *ngIf="step===1">
+      <div class="wd-back"><a routerLink="/owner" class="back-btn"><i class="bi bi-arrow-left"></i> Back to Dashboard</a></div>
+      <div class="wd-header">
+        <p class="step-label">STEP 1 OF 3</p>
+        <h1 class="wd-title">Withdraw your earnings</h1>
+        <p class="wd-sub">Choose how you'd like to receive your money.</p>
+        <div class="balance-chip" *ngIf="!loadingWallet && wallet">Available balance: <strong>EGP {{wallet.availableBalance.toFixed(2)}}</strong></div>
+        <div class="balance-chip" *ngIf="loadingWallet"><i class="bi bi-arrow-repeat spin"></i> Loading balance…</div>
+      </div>
+      <div class="method-grid">
+        <div class="method-card" [class.selected]="method===m.id" (click)="method=m.id" *ngFor="let m of methods">
+          <div class="method-icon" [style.background]="m.bg"><i class="bi" [ngClass]="m.icon" [style.color]="m.color"></i></div>
+          <div class="method-info">
+            <div class="method-name">{{m.name}}</div>
+            <div class="method-desc">{{m.desc}}</div>
+          </div>
+          <i class="bi bi-check-circle-fill method-check" *ngIf="method===m.id"></i>
+        </div>
+      </div>
+      <button class="btn-ew-primary" style="padding:14px 40px;margin-top:24px" (click)="step=2" [disabled]="method == null">Continue →</button>
+    </div>
+
+    <!-- Step 2: Enter details -->
+    <div *ngIf="step===2">
+      <div class="wd-back"><button class="back-btn" (click)="step=1"><i class="bi bi-arrow-left"></i> Back</button></div>
+      <div class="wd-header">
+        <p class="step-label">STEP 2 OF 3</p>
+        <h1 class="wd-title">Enter withdrawal details</h1>
+        <p class="wd-sub">Fill in your {{getMethodName()}} details below.</p>
+      </div>
+      <div class="wd-form-card">
+        <div class="mb-3">
+          <label class="ew-label">Amount to withdraw (EGP)</label>
+          <input class="ew-input" type="number" placeholder="0.00" [(ngModel)]="amount">
+          <small class="text-muted" *ngIf="wallet">Max: EGP {{wallet.availableBalance.toFixed(2)}}</small>
+          <p class="form-error" *ngIf="exceedsBalance">Amount exceeds your available balance.</p>
+        </div>
+        <div class="mb-3">
+          <label class="ew-label">{{getMethodName()}} details</label>
+          <textarea class="ew-input" rows="3" [placeholder]="getMethodPlaceholder()" [(ngModel)]="accountDetails"></textarea>
+        </div>
+        <button class="btn-ew-primary btn-full" style="padding:14px" (click)="step=3" [disabled]="!accountDetails || amountNum<=0 || exceedsBalance">Review Withdrawal →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirm -->
+    <div *ngIf="step===3">
+      <div class="wd-back"><button class="back-btn" (click)="step=2"><i class="bi bi-arrow-left"></i> Back</button></div>
+      <div class="wd-header">
+        <p class="step-label">STEP 3 OF 3</p>
+        <h1 class="wd-title">Confirm withdrawal</h1>
+        <p class="wd-sub">Review the details below before confirming.</p>
+      </div>
+      <div class="confirm-card">
+        <div class="cc-row"><span>Amount</span><strong class="text-green">EGP {{amount || '0.00'}}</strong></div>
+        <div class="cc-row"><span>Method</span><strong>{{getMethodName()}}</strong></div>
+        <div class="cc-row"><span>Details</span><strong>{{accountDetails}}</strong></div>
+        <div class="cc-row total-row"><span>You'll receive</span><strong class="text-green">EGP {{amount || '0.00'}}</strong></div>
+        <p class="form-error" *ngIf="submitError">{{submitError}}</p>
+        <button class="btn-ew-primary btn-full" style="padding:14px;margin-top:8px" (click)="confirmWithdrawal()" [disabled]="submitting">
+          <span *ngIf="!submitting">✓ Confirm Withdrawal</span>
+          <span *ngIf="submitting"><i class="bi bi-arrow-repeat spin"></i> Submitting…</span>
+        </button>
+        <p style="font-size:12px;color:var(--ew-gray-400);text-align:center;margin-top:10px">An admin will review and approve this request before funds are sent.</p>
+      </div>
+    </div>
+
+    <!-- Step 4: Success -->
+    <div *ngIf="step===4 && lastRequest" class="success-wrap">
+      <div class="ps-check"><i class="bi bi-check-lg"></i></div>
+      <h1 class="wd-title">Withdrawal Requested!</h1>
+      <p class="wd-sub">Your withdrawal of <strong>EGP {{lastRequest.amount.toFixed(2)}}</strong> has been submitted successfully.<br>It's now pending admin review.</p>
+      <div class="confirm-card" style="max-width:400px">
+        <div class="cc-row"><span>Reference ID</span><strong>WD-{{lastRequest.withdrawalId}}</strong></div>
+        <div class="cc-row"><span>Amount</span><strong class="text-green">EGP {{lastRequest.amount.toFixed(2)}}</strong></div>
+        <div class="cc-row"><span>Method</span><strong>{{getMethodName()}}</strong></div>
+        <div class="cc-row"><span>Status</span><span class="badge-pending">{{statusLabel(lastRequest.status)}}</span></div>
+      </div>
+      <a routerLink="/owner" class="btn-ew-primary" style="padding:12px 32px;margin-top:20px">Back to Dashboard</a>
+    </div>
+
+  </div>
+</div>

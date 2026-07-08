@@ -1,0 +1,32 @@
+<app-navbar role="driver"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <h1 class="page-heading">Favorite stations</h1>
+    <p class="page-sub">Your most-used and saved charging stations.</p>
+
+    <div *ngIf="loading" style="padding:40px 0;text-align:center">
+      <i class="bi bi-arrow-repeat spin" style="font-size:24px"></i>
+    </div>
+
+    <div *ngIf="!loading && loadError" class="map-load-error">
+      <i class="bi bi-exclamation-triangle"></i> {{loadError}}
+    </div>
+
+    <div class="fav-grid" *ngIf="!loading && !loadError">
+      <div class="fav-card" *ngFor="let f of favorites; let i = index" [routerLink]="['/stations', f.stationId]">
+        <div class="fav-img" [style.background]="gradientFor(i)">
+          <button class="heart-btn" (click)="remove(f.stationId, $event)" [disabled]="removingId === f.stationId" title="Remove from favorites">
+            <i class="bi" [ngClass]="removingId === f.stationId ? 'bi-arrow-repeat spin' : 'bi-heart-fill'"></i>
+          </button>
+        </div>
+        <div class="fav-info">
+          <div class="fav-name">{{f.stationName}}</div>
+          <div class="fav-addr">📍 {{f.stationAddress}}</div>
+        </div>
+      </div>
+      <p class="text-muted" *ngIf="!favorites.length" style="padding:40px 0;text-align:center">
+        You haven't saved any stations yet — tap the heart icon on a station to add one.
+      </p>
+    </div>
+  </div>
+</div>

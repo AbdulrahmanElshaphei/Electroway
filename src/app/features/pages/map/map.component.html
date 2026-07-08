@@ -1,0 +1,143 @@
+<app-navbar role="driver"></app-navbar>
+<div class="map-page">
+
+  <!-- AI Assistant Panel -->
+  <div class="ai-panel">
+    <div class="ai-panel-header">
+      <div class="ai-avatar"><i class="bi bi-robot"></i></div>
+      <div class="ai-header-text">
+        <div class="ai-title">AI Charging Assistant <span class="smart-tag">⚡ Smart</span></div>
+        <div class="ai-sub">Filters and ranks stations — you make the final pick.</div>
+      </div>
+      <span class="ai-msg-count">{{messages.length}} messages</span>
+      <button class="btn-mycar" (click)="openCarPopup()" title="My car details">
+        <i class="bi bi-car-front-fill"></i>
+        <span *ngIf="savedVehicle">{{savedVehicle.brand}} {{savedVehicle.model}}</span>
+        <span *ngIf="!savedVehicle">Add my car</span>
+      </button>
+    </div>
+
+    <div class="ai-messages" #messagesContainer>
+      <div class="ai-msg bot" *ngFor="let m of messages" [class.user]="m.role==='user'">
+        <div class="msg-avatar" *ngIf="m.role==='bot'"><i class="bi bi-robot"></i></div>
+        <div class="msg-bubble">{{m.text}}</div>
+      </div>
+    </div>
+
+    <div class="ai-chips-row">
+      <button class="ai-chip" *ngFor="let c of aiChips" (click)="sendChip(c)">{{c}}</button>
+    </div>
+
+    <div class="ai-input-row">
+      <input class="ai-input" type="text" placeholder="Ask Electro... e.g. 'Find a fast charger near me'"
+             [(ngModel)]="aiQuery" (keyup.enter)="sendAI()">
+      <button class="ai-btn-mic"><i class="bi bi-mic-fill"></i></button>
+      <button class="ai-btn-send" (click)="sendAI()"><i class="bi bi-send-fill"></i></button>
+    </div>
+  </div>
+
+  <!-- Map section -->
+  <div class="map-section">
+    <div class="map-section-header">
+      <div>
+        <h2 class="map-section-title">Live charging map</h2>
+        <p class="map-section-sub">Real-time availability across the city.</p>
+      </div>
+      <span class="stations-count">{{stations.length}} stations</span>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-tabs">
+      <button class="filter-tab" [class.active]="activeFilter===f"
+              *ngFor="let f of filters" (click)="activeFilter=f">{{f}}</button>
+    </div>
+
+    <!-- Map + Sidebar -->
+    <div class="map-layout">
+      <div class="map-area">
+        <div id="gmap" class="gmap"></div>
+        <div class="gps-overlay" *ngIf="loadingLocation">
+          <div class="gps-spinner"><i class="bi bi-geo-alt-fill"></i></div>
+          <div class="gps-text">Getting your location…</div>
+        </div>
+        <!-- Legend -->
+        <div class="map-legend">
+          <span><span class="leg-dot green"></span> Available</span>
+          <span><span class="leg-dot red"></span> Busy</span>
+          <span><span class="leg-dot gray"></span> Out</span>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="map-sidebar">
+        <div class="sidebar-title">Nearby stations</div>
+        <div class="map-load-error" *ngIf="loadError"><i class="bi bi-exclamation-triangle"></i> {{loadError}}</div>
+        <div class="station-list" *ngIf="!loadingStations; else loadingStationsTpl">
+          <div class="station-item" *ngFor="let s of stations"
+               (click)="selectStation(s)"
+               [class.selected]="selectedStation?.id===s.id">
+            <div class="si-main">
+              <div class="si-top-row">
+                <span class="si-name">{{s.name}}</span>
+                <span [ngClass]="s.status==='Available'?'badge-available':'badge-busy'">{{s.status}}</span>
+              </div>
+              <div class="si-addr"><i class="bi bi-geo-alt"></i> {{s.address}}</div>
+              <div class="si-meta-row">
+                <span class="si-rating"><i class="bi bi-star-fill"></i> {{s.rating}}</span>
+                <span class="si-dot">·</span>
+                <span>{{s.distLabel}}</span>
+                <span class="si-dot">·</span>
+                <span class="si-speed"><i class="bi bi-lightning-charge-fill text-green"></i> {{s.speedKw}}</span>
+              </div>
+            </div>
+            <div class="si-price">{{s.price}}</div>
+          </div>
+          <p class="text-muted text-center" style="padding:20px" *ngIf="!stations.length">No stations found nearby right now.</p>
+        </div>
+        <ng-template #loadingStationsTpl>
+          <div class="station-list">
+            <p class="text-muted text-center" style="padding:20px"><i class="bi bi-arrow-repeat spin"></i> Loading nearby stations…</p>
+          </div>
+        </ng-template>
+        <div class="sidebar-footer" *ngIf="selectedStation">
+          <a class="btn-ew-dark btn-full"
+             [routerLink]="['/stations', selectedStation.id]"
+             [queryParams]="{ name: selectedStation.name, address: selectedStation.address, lat: selectedStation.lat, lng: selectedStation.lng, price: selectedStation.price, speedKw: selectedStation.speedKw, rating: selectedStation.rating, status: selectedStation.status }">
+            <i class="bi bi-lightning-charge-fill"></i> View details
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MY CAR POPUP -->
+<div class="modal-overlay" *ngIf="showCarPopup" (click)="closeCarPopup()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">My car details</h2>
+      <button class="modal-close" (click)="closeCarPopup()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="ew-label">Nickname (optional)</label><input class="ew-input" type="text" placeholder="e.g. My Tesla" [(ngModel)]="carInfo.vehicleName"></div>
+      <div class="mb-3"><label class="ew-label">Brand</label><input class="ew-input" type="text" placeholder="e.g. Tesla" [(ngModel)]="carInfo.brand"></div>
+      <div class="mb-3"><label class="ew-label">Model</label><input class="ew-input" type="text" placeholder="e.g. Model 3" [(ngModel)]="carInfo.model"></div>
+      <div class="mb-3">
+        <label class="ew-label">Connector type</label>
+        <select class="ew-input" [(ngModel)]="carInfo.connectorType">
+          <option *ngFor="let c of connectorOptions" [ngValue]="c.value">{{c.label}}</option>
+        </select>
+      </div>
+      <div class="mb-3"><label class="ew-label">Battery capacity (kWh)</label><input class="ew-input" type="text" placeholder="e.g. 75" [(ngModel)]="carInfo.batteryCapacity"></div>
+      <div class="mb-3"><label class="ew-label">Consumption rate (kWh/100km)</label><input class="ew-input" type="text" placeholder="e.g. 16" [(ngModel)]="carInfo.consumptionRate"></div>
+      <p class="form-error" *ngIf="carPopupError">{{carPopupError}}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ew-outline" (click)="closeCarPopup()">Cancel</button>
+      <button class="btn-ew-primary" (click)="saveCarInfo()" [disabled]="!carInfo.brand||!carInfo.model||!carInfo.batteryCapacity||carPopupSaving">
+        <span *ngIf="!carPopupSaving"><i class="bi bi-check-lg"></i> Save car</span>
+        <span *ngIf="carPopupSaving"><i class="bi bi-arrow-repeat spin"></i> Saving…</span>
+      </button>
+    </div>
+  </div>
+</div>

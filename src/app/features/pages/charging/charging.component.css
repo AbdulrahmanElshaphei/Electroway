@@ -1,0 +1,52 @@
+.charging-page{min-height:100vh;background:var(--ew-gray-50)}
+.charging-topbar{padding:14px 28px;border-bottom:1px solid var(--ew-gray-200);background:#fff}
+.charging-step{font-size:12px;font-weight:600;color:var(--ew-gray-400);background:var(--ew-gray-100);padding:4px 12px;border-radius:20px;display:inline-block}
+
+.charging-body{max-width:480px;margin:0 auto;padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:28px}
+
+.station-label{display:inline-flex;align-items:center;gap:6px;background:var(--ew-green-light);color:var(--ew-green-dark);font-size:13px;font-weight:600;padding:6px 16px;border-radius:20px}
+
+/* Ring */
+.charge-ring-wrap{position:relative;width:200px;height:200px}
+.charge-ring{width:200px;height:200px}
+.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.ring-pct{font-size:40px;font-weight:800;color:var(--ew-gray-900)}
+.ring-label{font-size:13px;color:var(--ew-gray-500)}
+.ring-icon{font-size:18px;color:var(--ew-green);margin-top:4px}
+
+/* Stats */
+.charge-stats{display:flex;align-items:center;gap:0;background:#fff;border:1px solid var(--ew-gray-200);border-radius:16px;padding:20px 0;width:100%}
+.cs-item{flex:1;text-align:center}
+.cs-val{font-size:20px;font-weight:800;color:var(--ew-gray-900)}
+.cs-lbl{font-size:12px;color:var(--ew-gray-400);margin-top:4px}
+.cs-divider{width:1px;height:40px;background:var(--ew-gray-200)}
+
+/* Bar */
+.charge-bar-wrap{width:100%}
+.charge-bar-track{background:var(--ew-gray-200);border-radius:8px;height:10px;overflow:hidden;margin-bottom:6px}
+.charge-bar-fill{background:linear-gradient(90deg,#22c55e,#16a34a);height:100%;border-radius:8px;transition:width 1s ease}
+.charge-bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--ew-gray-400)}
+.target-label{color:var(--ew-green);font-weight:600}
+
+.charge-eta{background:#fff;border:1px solid var(--ew-gray-200);border-radius:10px;padding:10px 20px;font-size:14px;color:var(--ew-gray-700);display:flex;align-items:center;gap:8px;font-weight:600}
+.charge-eta i{color:var(--ew-green)}
+
+.charge-done{background:var(--ew-green-light);border-radius:12px;padding:14px 24px;font-size:15px;font-weight:700;color:var(--ew-green-dark);display:flex;align-items:center;gap:10px}
+.charge-done i{font-size:20px}
+
+.charge-actions{width:100%}
+.charge-pay-btn{padding:16px;font-size:15px;justify-content:center;text-decoration:none;width:100%;display:flex}
+.btn-stop{width:100%;padding:14px;border-radius:var(--ew-radius);border:2px solid var(--ew-red);background:#fff;color:var(--ew-red);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.btn-stop:hover{background:#fee2e2}
+
+@media (max-width: 768px) {
+  .charging-body { padding: 24px 16px; gap: 20px; }
+  .charge-ring-wrap { width: 160px; height: 160px; }
+  .charge-ring { width: 160px; height: 160px; }
+  .ring-pct  { font-size: 32px; }
+  .cs-val    { font-size: 16px; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin .7s linear infinite; }
+.cam-error { color: #dc2626; font-size: 13px; text-align: center; margin: 8px 0; }

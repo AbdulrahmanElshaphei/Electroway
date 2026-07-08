@@ -1,0 +1,102 @@
+<app-navbar role="admin"></app-navbar>
+<div class="page-bg">
+  <div class="page-container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div><h1 class="page-heading">Manage Ports</h1><p class="page-sub">Review and approve the charging ports owners add to the network.</p></div>
+    </div>
+
+    <p class="page-sub mb-3">Every port an owner adds starts as <strong>Pending</strong> and stays hidden from drivers on the map until you approve it here — one decision per port.</p>
+    <div class="tab-switch mb-3">
+      <button [class.active]="portTab==='Pending'"  (click)="setTab('Pending')">Pending <span class="tab-count" *ngIf="(portsData?.pendingCount || 0) > 0">{{portsData?.pendingCount}}</span></button>
+      <button [class.active]="portTab==='Live'"      (click)="setTab('Live')">Live</button>
+      <button [class.active]="portTab==='Rejected'"  (click)="setTab('Rejected')">Rejected</button>
+      <button [class.active]="portTab==='OutOfService'"       (click)="setTab('OutOfService')">Out of Service</button>
+    </div>
+    <div class="ew-card p-0">
+      <table class="ew-table">
+        <thead><tr><th>Port ID</th><th>Owner</th><th>Station</th><th>Speed</th><th>Price</th><th>Connector</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let p of portsData?.ports || []">
+            <td class="fw-600">{{p.portCode}}</td>
+            <td>{{p.ownerName || '—'}}</td>
+            <td>{{p.stationName || '—'}}</td>
+            <td>{{p.power}} kW</td>
+            <td>EGP {{p.pricePerKwh}}/kWh</td>
+            <td>{{p.connectorType || '—'}}</td>
+            <td>
+              <span [ngClass]="p.status==='Pending'?'badge-pending':(p.status==='Available'||p.status==='Busy')?'badge-available':p.status==='Rejected'?'badge-busy':'badge-out'">{{p.status}}</span>
+
+            </td>
+            <td>
+              <div class="action-btns">
+                <button class="btn-action-view" (click)="openViewPort(p)" title="View details"><i class="bi bi-eye"></i></button>
+                <button class="btn-approve" *ngIf="p.status==='Pending'" (click)="approvePort(p)" title="Approve"><i class="bi bi-check-lg"></i></button>
+                <button class="btn-reject"  *ngIf="p.status==='Pending'" (click)="openRejectPort(p)" title="Reject"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!portsData?.ports?.length">
+            <td colspan="8" class="text-center text-muted py-4">No ports in this category.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- REJECT PORT MODAL -->
+<div class="modal-overlay" *ngIf="rejectingPort" (click)="closeRejectPort()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Reject Port — {{rejectingPort && rejectingPort.portCode}}</h2>
+      <button class="modal-close" (click)="closeRejectPort()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <label class="ew-label">Reason for rejection <span class="text-red">*</span></label>
+      <textarea class="ew-input" rows="4" placeholder="e.g. The uploaded port photos don't show the connector clearly." [(ngModel)]="portRejectReason" style="resize:vertical"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ew-outline" (click)="closeRejectPort()">Cancel</button>
+      <button class="btn-ew-primary" (click)="confirmRejectPort()" [disabled]="!portRejectReason"><i class="bi bi-x-circle"></i> Reject &amp; Notify Owner</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW PORT MODAL — full submission details + uploaded photos -->
+<div class="modal-overlay" *ngIf="viewingPort" (click)="closeViewPort()">
+  <div class="modal-box modal-box-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Port {{viewingPort && viewingPort.portCode}}</h2>
+      <button class="modal-close" (click)="closeViewPort()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="viewingPort">
+      <span [ngClass]="viewingPort.status==='Pending'?'badge-pending':(viewingPort.status==='Available'||viewingPort.status==='Busy')?'badge-available':viewingPort.status==='Rejected'?'badge-busy':'badge-out'">{{viewingPort.status}}</span>
+
+      <div class="view-grid mt-3">
+        <div><span class="vg-lbl">Owner</span><span class="vg-val">{{viewingPort.ownerName || '—'}}</span></div>
+        <div><span class="vg-lbl">Station</span><span class="vg-val">{{viewingPort.stationName || '—'}}</span></div>
+        <div><span class="vg-lbl">Address</span><span class="vg-val">{{viewingPort.stationAddress || '—'}}</span></div>
+        <div><span class="vg-lbl">Speed</span><span class="vg-val">{{viewingPort.power}} kW</span></div>
+        <div><span class="vg-lbl">Price</span><span class="vg-val">EGP {{viewingPort.pricePerKwh}}/kWh</span></div>
+        <div><span class="vg-lbl">Connector</span><span class="vg-val">{{viewingPort.connectorType || '—'}}</span></div>
+        <div class="vg-wide" *ngIf="viewingPort.createdAt"><span class="vg-lbl">Submitted</span><span class="vg-val">{{viewingPort.createdAt | date:'medium'}}</span></div>
+      </div>
+
+      <div class="mt-3">
+        <span class="vg-lbl">Port photos</span>
+        <div class="view-img-grid mt-2" *ngIf="viewingPort.imageUrls && viewingPort.imageUrls.length">
+          <a class="view-img-item" *ngFor="let img of viewingPort.imageUrls" [href]="getImageUrl(img)" target="_blank">
+            <img [src]="getImageUrl(img)" alt="Port Photo">
+          </a>
+        </div>
+        <p class="text-muted mt-2" *ngIf="!viewingPort.imageUrls || !viewingPort.imageUrls.length">
+          <i class="bi bi-image"></i> No photos were uploaded with this port.
+        </p>
+      </div>
+    </div>
+    <div class="modal-footer" *ngIf="viewingPort && viewingPort.status==='Pending'">
+      <button class="btn-ew-outline" (click)="openRejectPort(viewingPort)"><i class="bi bi-x-lg"></i> Reject</button>
+      <button class="btn-ew-primary" (click)="approvePort(viewingPort)"><i class="bi bi-check-lg"></i> Approve</button>
+    </div>
+  </div>
+</div>

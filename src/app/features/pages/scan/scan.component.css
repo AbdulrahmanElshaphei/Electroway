@@ -1,0 +1,64 @@
+.scan-page{min-height:100vh;background:var(--ew-gray-900);display:flex;flex-direction:column}
+.scan-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.08)}
+.back-btn-white{font-size:14px;font-weight:600;color:var(--ew-gray-300);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.back-btn-white:hover{color:#fff}
+.scan-step{font-size:12px;font-weight:600;color:var(--ew-gray-400);background:rgba(255,255,255,.07);padding:4px 12px;border-radius:20px}
+
+.scan-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
+.scan-title{font-size:28px;font-weight:800;color:#fff;margin:0}
+.scan-sub{font-size:14px;color:var(--ew-gray-400);text-align:center;max-width:340px;margin:0;line-height:1.6}
+
+/* Scan box */
+.scan-box{width:300px;height:300px;border-radius:24px;overflow:hidden;position:relative;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);transition:all .3s}
+.scan-box.scanning{border-color:var(--ew-green);box-shadow:0 0 0 4px rgba(34,197,94,.15)}
+.scan-box.detected{background:var(--ew-green);border-color:var(--ew-green);box-shadow:0 0 40px rgba(34,197,94,.5)}
+
+/* Camera */
+.camera-feed{width:100%;height:100%;object-fit:cover}
+
+/* Scanner overlay */
+.scanner-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.scanner-frame{width:180px;height:180px;position:relative}
+.corner{position:absolute;width:24px;height:24px;border-color:var(--ew-green);border-style:solid}
+.corner.tl{top:0;left:0;border-width:3px 0 0 3px}
+.corner.tr{top:0;right:0;border-width:3px 3px 0 0}
+.corner.bl{bottom:0;left:0;border-width:0 0 3px 3px}
+.corner.br{bottom:0;right:0;border-width:0 3px 3px 0}
+.scan-line{position:absolute;left:8px;right:8px;height:2px;background:linear-gradient(90deg,transparent,var(--ew-green),transparent);top:0;animation:scanLine 2s infinite ease-in-out}
+@keyframes scanLine{0%{top:8px;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:calc(100% - 8px);opacity:0}}
+.scan-hint{font-size:12px;color:rgba(255,255,255,.6);text-align:center;margin:0}
+
+/* Start state */
+.camera-start{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;height:100%}
+.camera-icon{width:56px;height:56px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--ew-gray-400)}
+.camera-start p{font-size:13px;color:var(--ew-gray-400);margin:0}
+
+/* Detected state */
+.detected-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:100%;padding:20px;text-align:center}
+.check-circle{width:64px;height:64px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;animation:popIn .3s ease}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.detected-label{font-size:18px;font-weight:800;color:#fff}
+.detected-port{font-size:13px;color:rgba(255,255,255,.8)}
+
+/* Status */
+.cam-error{background:#fee2e2;color:#dc2626;border-radius:10px;padding:10px 16px;font-size:13px;display:flex;align-items:center;gap:8px;max-width:300px;text-align:center}
+.scan-status{font-size:14px;color:#fff;font-weight:600;margin:0}
+.scanning-txt{color:var(--ew-green)}
+
+.btn-simulate{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--ew-gray-300);cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s}
+.btn-simulate:hover{background:rgba(255,255,255,.14);color:#fff}
+
+.btn-start-charging{background:var(--ew-green);color:#fff;border:none;border-radius:14px;padding:16px 40px;font-size:16px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:10px;text-decoration:none;transition:background .2s;animation:fadeIn .4s ease}
+.btn-start-charging:hover{background:var(--ew-green-dark);color:#fff}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+@media (max-width: 768px) {
+  .scan-topbar { padding: 12px 16px; }
+  .scan-body   { padding: 24px 16px; gap: 16px; }
+  .scan-title  { font-size: 22px; }
+  .scan-box    { width: 260px; height: 260px; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin .7s linear infinite; }
+.btn-start-charging:disabled { opacity: .6; cursor: not-allowed; }

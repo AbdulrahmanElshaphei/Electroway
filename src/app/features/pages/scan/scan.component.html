@@ -1,0 +1,66 @@
+<app-navbar role="driver"></app-navbar>
+<div class="scan-page">
+  <div class="scan-topbar">
+    <a routerLink="/navigate" class="back-btn-white"><i class="bi bi-arrow-left"></i> Back</a>
+    <div class="scan-step">Step 3 of 5 — Scan QR</div>
+  </div>
+
+  <div class="scan-body">
+    <h1 class="scan-title">Scan QR Code</h1>
+    <p class="scan-sub">Point your camera at the QR code on the charging port to start your session.</p>
+
+    <!-- Camera view -->
+    <div class="scan-box" [ngClass]="{'detected': detected, 'scanning': !detected && cameraActive}">
+      <!-- Real camera feed -->
+      <video #videoEl class="camera-feed" autoplay playsinline muted *ngIf="cameraActive && !detected"></video>
+
+      <!-- Scanner overlay -->
+      <div class="scanner-overlay" *ngIf="cameraActive && !detected">
+        <div class="scanner-frame">
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+          <div class="scan-line"></div>
+        </div>
+        <p class="scan-hint">Align QR code within the frame</p>
+      </div>
+
+      <!-- No camera / start state -->
+      <div class="camera-start" *ngIf="!cameraActive && !detected">
+        <div class="camera-icon"><i class="bi bi-camera-fill"></i></div>
+        <p>Camera access needed to scan QR</p>
+        <button class="btn-ew-primary" (click)="startCamera()">
+          <i class="bi bi-camera-fill"></i> Open Camera
+        </button>
+      </div>
+
+      <!-- Detected success state -->
+      <div class="detected-state" *ngIf="detected">
+        <div class="check-circle"><i class="bi bi-check-lg"></i></div>
+        <div class="detected-label">QR Detected!</div>
+        <div class="detected-port">{{stationName || 'Charging port'}}</div>
+      </div>
+    </div>
+
+    <!-- Camera error -->
+    <div class="cam-error" *ngIf="cameraError">
+      <i class="bi bi-exclamation-triangle-fill"></i> {{cameraError}}
+    </div>
+
+    <p class="cam-error" *ngIf="sessionError"><i class="bi bi-exclamation-triangle-fill"></i> {{sessionError}}</p>
+
+    <p class="scan-status" *ngIf="detected">✅ Port verified — ready to charge.</p>
+    <p class="scan-status scanning-txt" *ngIf="cameraActive && !detected">Scanning for QR code…</p>
+
+    <!-- Dev shortcut: simulate scan -->
+    <button class="btn-simulate" (click)="simulateScan()" *ngIf="cameraActive && !detected">
+      <i class="bi bi-qr-code"></i> Simulate QR Scan (Demo)
+    </button>
+
+    <button class="btn-start-charging" *ngIf="detected" (click)="startCharging()" [disabled]="startingSession">
+      <i class="bi" [ngClass]="startingSession ? 'bi-arrow-repeat spin' : 'bi-lightning-charge-fill'"></i>
+      {{startingSession ? 'Starting…' : 'Start Charging'}}
+    </button>
+  </div>
+</div>

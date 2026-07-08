@@ -1,0 +1,51 @@
+<div class="page-bg">
+  <div class="pay-container">
+
+    <div class="pay-back"><a routerLink="/receipt" class="back-btn"><i class="bi bi-arrow-left"></i> Back to receipt</a></div>
+
+    <!-- Card entry -->
+    <div *ngIf="!processing">
+      <div class="pay-header">
+        <p class="step-label">PAY BY CARD</p>
+        <h1 class="pay-title">Enter your card details</h1>
+        <p class="pay-sub">Charging session at {{session.stationName}} · Port {{session.portId}}</p>
+        <div class="amount-chip">Amount due: <strong>EGP {{session.total.toFixed(2)}}</strong></div>
+      </div>
+
+      <div class="pay-form-card">
+        <div class="mb-3">
+          <label class="ew-label">Cardholder name</label>
+          <input class="ew-input" type="text" placeholder="Full name on card" [(ngModel)]="cardName">
+        </div>
+        <div class="mb-3">
+          <label class="ew-label">Card number</label>
+          <input class="ew-input" type="text" placeholder="•••• •••• •••• ••••" maxlength="19" [(ngModel)]="cardNum">
+        </div>
+        <div class="row-2">
+          <div class="mb-3"><label class="ew-label">Expiry</label><input class="ew-input" type="text" placeholder="MM/YY" maxlength="5" [(ngModel)]="expiry"></div>
+          <div class="mb-3"><label class="ew-label">CVV</label><input class="ew-input" type="text" placeholder="•••" maxlength="4" [(ngModel)]="cvv"></div>
+        </div>
+
+        <div class="pay-summary">
+          <div class="cc-row"><span>Station</span><strong>{{session.stationName}}</strong></div>
+          <div class="cc-row"><span>Energy used</span><strong>{{session.energyKwh}} kWh</strong></div>
+          <div class="cc-row total-row"><span>Total</span><strong class="text-green">EGP {{session.total.toFixed(2)}}</strong></div>
+        </div>
+
+        <p class="form-error" *ngIf="payError">{{payError}}</p>
+        <button class="btn-ew-primary btn-full" style="padding:14px" (click)="pay()" [disabled]="!formValid || processing">
+          <i class="bi bi-lock-fill"></i> Pay EGP {{session.total.toFixed(2)}}
+        </button>
+        <p class="pay-secure"><i class="bi bi-shield-lock"></i> Payments are encrypted and processed securely.</p>
+      </div>
+    </div>
+
+    <!-- Processing state -->
+    <div *ngIf="processing" class="processing-wrap">
+      <div class="pay-spinner"></div>
+      <h2>Processing your payment…</h2>
+      <p class="pay-sub">Please don't close this page.</p>
+    </div>
+
+  </div>
+</div>
